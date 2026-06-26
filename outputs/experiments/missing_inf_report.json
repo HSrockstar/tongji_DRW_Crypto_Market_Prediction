@@ -1,0 +1,28 @@
+{
+  "project_root": "E:\\DRW",
+  "generated_at": "2026-06-27T00:09:29",
+  "files": {
+    "train.parquet": {
+      "path": "E:\\DRW\\data\\raw\\train.parquet",
+      "row_count": 525886,
+      "column_count": 787,
+      "numeric_column_count": 786,
+      "total_null": 0,
+      "total_nan": 0,
+      "total_inf": 0,
+      "affected_column_count": 0,
+      "affected_columns_top": []
+    },
+    "test.parquet": {
+      "path": "E:\\DRW\\data\\raw\\test.parquet",
+      "row_count": 538150,
+      "column_count": 786,
+      "numeric_column_count": 786,
+      "total_null": 0,
+      "total_nan": 0,
+      "total_inf": 0,
+      "affected_column_count": 0,
+      "affected_columns_top": []
+    }
+  }
+}

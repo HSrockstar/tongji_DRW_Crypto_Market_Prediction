@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-06-27T00:02:33",
+  "model": "E:\\DRW\\models\\official_lgbm.txt",
+  "model_type": "lightgbm",
+  "feature_file": "E:\\DRW\\models\\official_lgbm_features.json",
+  "output": "E:\\DRW\\outputs\\submissions\\smoke_submission.csv",
+  "rows": 100000,
+  "smoke_rows": 100000,
+  "prediction_mean": -0.02462862495055869,
+  "prediction_std": 0.26206084815231734,
+  "prediction_min": -1.479851066508911,
+  "prediction_max": 2.3833230896990734,
+  "has_nan_or_inf": false
+}

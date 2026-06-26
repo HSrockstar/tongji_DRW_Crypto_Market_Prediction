@@ -1,0 +1,2 @@
+model,sample_rows,train_rows,valid_rows,valid_fraction,gap_rows,learning_rate,num_leaves,best_iteration,generated_at,pearson,rmse,mae
+lightgbm,525886,420709,105177,0.2,0,0.03,63,1,2026-06-27T00:11:24,0.029183419917993045,1.0402817822497257,0.6981099172109909

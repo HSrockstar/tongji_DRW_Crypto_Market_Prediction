@@ -1,0 +1,2 @@
+model,sample_rows,train_rows,valid_rows,valid_fraction,gap_rows,alpha,generated_at,pearson,rmse,mae
+ridge,100000,80000,20000,0.2,0,1.0,2026-06-27T00:01:44,0.045226410867631524,5.717696687171372,4.91174108051307
