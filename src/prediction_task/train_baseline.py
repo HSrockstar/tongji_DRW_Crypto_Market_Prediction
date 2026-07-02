@@ -48,6 +48,7 @@ def update_model_compare(output_dir: Path) -> None:
     for path in [
         output_dir / "official_baseline_results.csv",
         output_dir / "official_lgbm_results.csv",
+        output_dir / "official_lasso_results.csv",
     ]:
         if path.is_file():
             result = pd.read_csv(path)
@@ -66,6 +67,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--valid-fraction", type=float, default=0.2, help="验证集比例")
     parser.add_argument("--gap-rows", type=int, default=0, help="训练集和验证集之间的 gap 行数")
     parser.add_argument("--alpha", type=float, default=1.0, help="Ridge 正则强度")
+    parser.add_argument("--solver", default="lsqr", help="Ridge 求解器，全量数据默认使用 lsqr 避免 SVD 内存压力")
     return parser.parse_args()
 
 
@@ -93,7 +95,7 @@ def main() -> int:
     model = Pipeline(
         steps=[
             ("scaler", StandardScaler()),
-            ("ridge", Ridge(alpha=args.alpha)),
+            ("ridge", Ridge(alpha=args.alpha, solver=args.solver)),
         ]
     )
     model.fit(X_train, y_train)
@@ -113,6 +115,7 @@ def main() -> int:
         "valid_fraction": args.valid_fraction,
         "gap_rows": args.gap_rows,
         "alpha": args.alpha,
+        "solver": args.solver,
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         **metrics,
     }

@@ -32,6 +32,8 @@ def infer_feature_path(model_path: Path) -> Path:
         return model_path.with_name("official_lgbm_features.json")
     if model_path.name == "official_ridge.pkl":
         return model_path.with_name("official_ridge_features.json")
+    if model_path.name == "official_lasso.pkl":
+        return model_path.with_name("official_lasso_features.json")
     return model_path.with_suffix("").with_name(f"{model_path.stem}_features.json")
 
 
@@ -40,7 +42,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--root", default=str(DEFAULT_ROOT), help="项目根目录")
     parser.add_argument("--model", required=True, help="模型文件路径")
     parser.add_argument("--feature-file", default=None, help="特征列 JSON，默认按模型名推断")
-    parser.add_argument("--model-type", choices=["auto", "ridge", "lightgbm"], default="auto")
+    parser.add_argument("--model-type", choices=["auto", "ridge", "lasso", "lightgbm"], default="auto")
     parser.add_argument("--smoke-rows", type=int, default=None, help="只预测前 N 行，生成 smoke submission")
     parser.add_argument("--output", default=None, help="提交文件输出路径")
     return parser.parse_args()
@@ -69,7 +71,12 @@ def main() -> int:
 
     model_type = args.model_type
     if model_type == "auto":
-        model_type = "lightgbm" if model_path.suffix.lower() == ".txt" else "ridge"
+        if model_path.suffix.lower() == ".txt":
+            model_type = "lightgbm"
+        elif model_path.name == "official_lasso.pkl":
+            model_type = "lasso"
+        else:
+            model_type = "ridge"
 
     if model_type == "lightgbm":
         model = lgb.Booster(model_file=str(model_path))
@@ -121,4 +128,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

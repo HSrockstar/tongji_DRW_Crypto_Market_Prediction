@@ -1,2 +1,2 @@
-model,sample_rows,train_rows,valid_rows,valid_fraction,gap_rows,alpha,generated_at,pearson,rmse,mae
-ridge,100000,80000,20000,0.2,0,1.0,2026-06-27T00:01:44,0.045226410867631524,5.717696687171372,4.91174108051307
+model,sample_rows,train_rows,valid_rows,valid_fraction,gap_rows,alpha,solver,generated_at,pearson,rmse,mae
+ridge,525886,420709,105177,0.2,0,1.0,lsqr,2026-07-02T19:53:58,0.09190551667590487,1.2275199829504948,0.8685829944546544

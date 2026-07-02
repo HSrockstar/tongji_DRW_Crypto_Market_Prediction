@@ -52,6 +52,7 @@ def load_valid_predictions(root: Path) -> pd.DataFrame:
     files = [
         root / "outputs" / "experiments" / "official_baseline_valid_predictions.csv",
         root / "outputs" / "experiments" / "official_lgbm_valid_predictions.csv",
+        root / "outputs" / "experiments" / "official_lasso_valid_predictions.csv",
     ]
     frames = [pd.read_csv(path) for path in files if path.is_file()]
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
@@ -63,15 +64,46 @@ def plot_valid_prediction_distribution(root: Path, output_dir: Path) -> None:
         print("未找到验证集预测结果，跳过验证预测分布图")
         return
 
-    plt.figure(figsize=(10, 5))
-    sns.kdeplot(data=data, x="y_true", label="真实值", common_norm=False)
-    sns.kdeplot(data=data, x="y_pred", hue="model", common_norm=False)
-    plt.title("验证集真实值与预测值分布")
-    plt.xlabel("数值")
-    plt.ylabel("密度")
-    plt.tight_layout()
-    plt.savefig(output_dir / "validation_prediction_distribution.png", dpi=150)
-    plt.close()
+    true_data = data.drop_duplicates(subset=["row_index"]) if "row_index" in data.columns else data
+    model_colors = {
+        "ridge": "#4C72B0",
+        "lightgbm": "#DD8452",
+        "lasso": "#55A868",
+    }
+    model_labels = {
+        "ridge": "Ridge 预测",
+        "lightgbm": "LightGBM 预测",
+        "lasso": "Lasso 预测",
+    }
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    sns.kdeplot(
+        data=true_data,
+        x="y_true",
+        ax=ax,
+        label="真实值",
+        color="#222222",
+        linestyle="--",
+        linewidth=2.2,
+        common_norm=False,
+    )
+    for model_name, model_data in data.groupby("model", sort=False):
+        sns.kdeplot(
+            data=model_data,
+            x="y_pred",
+            ax=ax,
+            label=model_labels.get(model_name, f"{model_name} 预测"),
+            color=model_colors.get(model_name),
+            linewidth=1.8,
+            common_norm=False,
+        )
+    ax.set_title("验证集真实值与预测值分布")
+    ax.set_xlabel("数值")
+    ax.set_ylabel("密度")
+    ax.legend(title="曲线")
+    fig.tight_layout()
+    fig.savefig(output_dir / "validation_prediction_distribution.png", dpi=150)
+    plt.close(fig)
 
     scatter_data = data.sample(min(len(data), 5000), random_state=42)
     plt.figure(figsize=(7, 7))
@@ -129,4 +161,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

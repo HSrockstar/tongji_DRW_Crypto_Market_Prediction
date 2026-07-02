@@ -29,16 +29,30 @@ from prediction_task.splits import time_order_split
 from prediction_task.train_baseline import update_model_compare
 
 
+def lgb_pearson_eval(preds: np.ndarray, dataset: lgb.Dataset) -> tuple[str, float, bool]:
+    labels = dataset.get_label()
+    metrics = evaluate_regression(labels, preds)
+    return "pearson", metrics["pearson"], True
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="训练官方预测任务 LightGBM 初步主模型")
     parser.add_argument("--root", default=str(DEFAULT_ROOT), help="项目根目录")
     parser.add_argument("--sample-rows", type=int, default=None, help="只读取前 N 行做小样本验证")
     parser.add_argument("--valid-fraction", type=float, default=0.2, help="验证集比例")
     parser.add_argument("--gap-rows", type=int, default=0, help="训练集和验证集之间的 gap 行数")
-    parser.add_argument("--learning-rate", type=float, default=0.03)
-    parser.add_argument("--num-leaves", type=int, default=63)
-    parser.add_argument("--num-boost-round", type=int, default=5000)
-    parser.add_argument("--early-stopping-rounds", type=int, default=100)
+    parser.add_argument("--learning-rate", type=float, default=0.01)
+    parser.add_argument("--num-leaves", type=int, default=31)
+    parser.add_argument("--num-boost-round", type=int, default=3000)
+    parser.add_argument("--early-stopping-rounds", type=int, default=200)
+    parser.add_argument("--metric-for-early-stop", choices=["pearson", "rmse"], default="pearson")
+    parser.add_argument("--min-data-in-leaf", type=int, default=200)
+    parser.add_argument("--feature-fraction", type=float, default=0.9)
+    parser.add_argument("--bagging-fraction", type=float, default=0.9)
+    parser.add_argument("--lambda-l1", type=float, default=0.0)
+    parser.add_argument("--lambda-l2", type=float, default=10.0)
+    parser.add_argument("--max-depth", type=int, default=-1)
+    parser.add_argument("--min-gain-to-split", type=float, default=0.0)
     parser.add_argument("--num-threads", type=int, default=0)
     parser.add_argument("--log-period", type=int, default=100)
     return parser.parse_args()
@@ -67,16 +81,17 @@ def main() -> int:
 
     params = {
         "objective": "regression",
-        "metric": "rmse",
+        "metric": "None" if args.metric_for_early_stop == "pearson" else "rmse",
         "learning_rate": args.learning_rate,
         "num_leaves": args.num_leaves,
-        "max_depth": -1,
-        "min_data_in_leaf": 50,
-        "feature_fraction": 0.8,
-        "bagging_fraction": 0.8,
+        "max_depth": args.max_depth,
+        "min_data_in_leaf": args.min_data_in_leaf,
+        "feature_fraction": args.feature_fraction,
+        "bagging_fraction": args.bagging_fraction,
         "bagging_freq": 1,
-        "lambda_l1": 0.0,
-        "lambda_l2": 1.0,
+        "lambda_l1": args.lambda_l1,
+        "lambda_l2": args.lambda_l2,
+        "min_gain_to_split": args.min_gain_to_split,
         "seed": 42,
         "verbosity": -1,
     }
@@ -91,6 +106,7 @@ def main() -> int:
         num_boost_round=args.num_boost_round,
         valid_sets=[valid_set],
         valid_names=["valid"],
+        feval=lgb_pearson_eval if args.metric_for_early_stop == "pearson" else None,
         callbacks=[
             lgb.early_stopping(args.early_stopping_rounds),
             lgb.log_evaluation(args.log_period),
@@ -111,8 +127,16 @@ def main() -> int:
         "valid_rows": len(valid_idx),
         "valid_fraction": args.valid_fraction,
         "gap_rows": args.gap_rows,
+        "metric_for_early_stop": args.metric_for_early_stop,
         "learning_rate": args.learning_rate,
         "num_leaves": args.num_leaves,
+        "min_data_in_leaf": args.min_data_in_leaf,
+        "feature_fraction": args.feature_fraction,
+        "bagging_fraction": args.bagging_fraction,
+        "lambda_l1": args.lambda_l1,
+        "lambda_l2": args.lambda_l2,
+        "max_depth": args.max_depth,
+        "min_gain_to_split": args.min_gain_to_split,
         "best_iteration": int(model.best_iteration or args.num_boost_round),
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         **metrics,
@@ -136,4 +160,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
