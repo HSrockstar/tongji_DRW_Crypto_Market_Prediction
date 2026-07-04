@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-07-04T01:47:13",
+  "sample_rows_corr": 300000,
+  "sample_rows_shift": 100000,
+  "corr_threshold": 0.6,
+  "label": {
+    "label_stats_csv": "D:\\数学建模期末大作业\\tongji_DRW_Crypto_Market_Prediction\\outputs\\eda\\label_stats.csv",
+    "holdout_std_over_train_std": 1.0369318393094333
+  },
+  "x_cluster": {
+    "anonymous_feature_count": 780,
+    "cluster_count": 25,
+    "cluster_size_min": 1,
+    "cluster_size_median": 7.0,
+    "cluster_size_max": 565,
+    "cluster_size_mean": 31.2,
+    "singleton_cluster_count": 4
+  },
+  "top10_label_corr": [
+    {
+      "feature": "X752",
+      "abs_pearson": 0.09042828637775713,
+      "feature_group": "anonymous_x"
+    },
+    {
+      "feature": "X614",
+      "abs_pearson": 0.08372826235427276,
+      "feature_group": "anonymous_x"
+    },
+    {
+      "feature": "X759",
+      "abs_pearson": 0.07605892331699822,
+      "feature_group": "anonymous_x"
+    },
+    {
+      "feature": "X27",
+      "abs_pearson": 0.072856086243638,
+      "feature_group": "anonymous_x"
+    },
+    {
+      "feature": "X28",
+      "abs_pearson": 0.07213997433928017,
+      "feature_group": "anonymous_x"
+    },
+    {
+      "feature": "X20",
+      "abs_pearson": 0.07083815198623727,
+      "feature_group": "anonymous_x"
+    },
+    {
+      "feature": "X611",
+      "abs_pearson": 0.07027809246330297,
+      "feature_group": "anonymous_x"
+    },
+    {
+      "feature": "X608",
+      "abs_pearson": 0.07006472333182509,
+      "feature_group": "anonymous_x"
+    },
+    {
+      "feature": "X19",
+      "abs_pearson": 0.06925575416614595,
+      "feature_group": "anonymous_x"
+    },
+    {
+      "feature": "X21",
+      "abs_pearson": 0.06737474933113866,
+      "feature_group": "anonymous_x"
+    }
+  ],
+  "label_corr_by_group": [
+    {
+      "feature_group": "anonymous_x",
+      "count": 780,
+      "mean": 0.0215840273471836,
+      "median": 0.0167255940088271,
+      "max": 0.0904282863777571
+    },
+    {
+      "feature_group": "derived_market",
+      "count": 7,
+      "mean": 0.0125709787014612,
+      "median": 0.0070485785789221,
+      "max": 0.0282739116835463
+    },
+    {
+      "feature_group": "public_market",
+      "count": 5,
+      "mean": 0.0218775387576905,
+      "median": 0.0265706867536803,
+      "max": 0.0282739115023132
+    }
+  ],
+  "recommendations": [
+    "匿名特征在 |corr|>=0.6 下约 25 个簇，medoid 硬删特征风险高，优先全特征 + 强正则。",
+    "公开市场/派生特征单独特征相关性通常弱于 anonymous X，新特征应优先基于 Top importance X 或 market 时序。",
+    "后续优化顺序建议: 多 seed LGBM 平均 → 局部调参 → CatBoost/XGB 异质集成；避免再跑 medoid 硬删。"
+  ]
+}
