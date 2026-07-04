@@ -15,7 +15,7 @@ SRC_DIR = Path(__file__).resolve().parents[1]
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from data_preprocessing.build_features import add_basic_market_features
+from data_preprocessing.build_features import add_basic_market_features, add_synthesized_features
 from data_preprocessing.preprocess import (  # noqa: E402
     DEFAULT_ROOT,
     ensure_dir,
@@ -27,11 +27,27 @@ from data_preprocessing.preprocess import (  # noqa: E402
 )
 
 
+def load_lgbm_model(model_path: Path) -> lgb.Booster:
+    try:
+        return lgb.Booster(model_file=str(model_path))
+    except lgb.basic.LightGBMError:
+        model_string = model_path.read_text(encoding="utf-8")
+        return lgb.Booster(model_str=model_string)
+
+
 def infer_feature_path(model_path: Path) -> Path:
     if model_path.name == "official_lgbm.txt":
         return model_path.with_name("official_lgbm_features.json")
+    if model_path.name == "official_lgbm_selected.txt":
+        return model_path.with_name("official_lgbm_selected_features.json")
+    if model_path.name == "selected_lgbm.txt":
+        return model_path.with_name("selected_lgbm_features.json")
     if model_path.name == "official_ridge.pkl":
         return model_path.with_name("official_ridge_features.json")
+    if model_path.name == "official_ridge_selected.pkl":
+        return model_path.with_name("official_ridge_selected_features.json")
+    if model_path.name == "selected_ridge.pkl":
+        return model_path.with_name("selected_ridge_features.json")
     if model_path.name == "official_lasso.pkl":
         return model_path.with_name("official_lasso_features.json")
     return model_path.with_suffix("").with_name(f"{model_path.stem}_features.json")
@@ -58,7 +74,9 @@ def main() -> int:
     if not feature_path.is_absolute():
         feature_path = root / feature_path
 
-    feature_cols = load_json(feature_path)["feature_columns"]
+    feature_payload = load_json(feature_path)
+    feature_cols = feature_payload["feature_columns"]
+    combo_defs = feature_payload.get("combo_defs", [])
     test_data = load_parquet_frame(
         root,
         "test.parquet",
@@ -66,6 +84,8 @@ def main() -> int:
         include_label=False,
     )
     test_data = add_basic_market_features(test_data)
+    if combo_defs:
+        test_data = add_synthesized_features(test_data, combo_defs)
     validate_no_missing_or_infinite(test_data, feature_cols, context="提交预测数据")
     X_test = test_data[feature_cols]
 
@@ -79,7 +99,7 @@ def main() -> int:
             model_type = "ridge"
 
     if model_type == "lightgbm":
-        model = lgb.Booster(model_file=str(model_path))
+        model = load_lgbm_model(model_path)
         prediction = model.predict(X_test, num_iteration=model.best_iteration)
     else:
         model = joblib.load(model_path)

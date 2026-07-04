@@ -12,6 +12,7 @@ env/
 
 # 密钥与本地配置
 kaggle.json
+.kaggle/
 .env
 
 # Kaggle 大型原始数据，不提交到 GitHub
@@ -21,6 +22,19 @@ data/raw/drw-crypto-market-prediction.zip
 
 # 允许提交较小的提交模板
 !data/raw/sample_submission.csv
+
+# CatBoost 训练临时目录
+catboost_info/
+
+# 体积过大的验证预测明细（汇总 CSV 已保留）
+outputs/experiments/*_valid_predictions.csv
+outputs/experiments/phase12_valid_predictions.csv
+
+# 大型提交文件（baseline submission.csv 保留在库中，其余可脚本生成）
+outputs/submissions/submission_ensemble*.csv
+outputs/submissions/submission_overnight*.csv
+outputs/submissions/submission_step4*.csv
+outputs/submissions/submission_selected*.csv
 
 # 常见本地系统文件
 .DS_Store

@@ -14,12 +14,13 @@ SRC_DIR = Path(__file__).resolve().parents[1]
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from data_preprocessing.build_features import add_basic_market_features
+from data_preprocessing.build_features import add_basic_market_features, add_synthesized_features
 from data_preprocessing.preprocess import (  # noqa: E402
     DEFAULT_ROOT,
     TARGET_COL,
     ensure_dir,
     get_feature_columns,
+    load_json,
     load_parquet_frame,
     save_json,
     validate_no_missing_or_infinite,
@@ -27,6 +28,14 @@ from data_preprocessing.preprocess import (  # noqa: E402
 from prediction_task.metrics import evaluate_regression
 from prediction_task.splits import time_order_split
 from prediction_task.train_baseline import update_model_compare
+
+
+def save_lgbm_model(model: lgb.Booster, model_path: Path) -> None:
+    ensure_dir(model_path.parent)
+    try:
+        model.save_model(model_path)
+    except lgb.basic.LightGBMError:
+        model_path.write_text(model.model_to_string(), encoding="utf-8")
 
 
 def lgb_pearson_eval(preds: np.ndarray, dataset: lgb.Dataset) -> tuple[str, float, bool]:
@@ -41,6 +50,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sample-rows", type=int, default=None, help="只读取前 N 行做小样本验证")
     parser.add_argument("--valid-fraction", type=float, default=0.2, help="验证集比例")
     parser.add_argument("--gap-rows", type=int, default=0, help="训练集和验证集之间的 gap 行数")
+    parser.add_argument("--feature-file", default=None, help="特征列 JSON，默认使用全部特征")
     parser.add_argument("--learning-rate", type=float, default=0.01)
     parser.add_argument("--num-leaves", type=int, default=31)
     parser.add_argument("--num-boost-round", type=int, default=3000)
@@ -66,7 +76,20 @@ def main() -> int:
 
     data = load_parquet_frame(root, "train.parquet", sample_rows=args.sample_rows, include_label=True)
     data = add_basic_market_features(data)
-    feature_cols = get_feature_columns(data.columns)
+    combo_defs: list[dict[str, str]] = []
+    if args.feature_file:
+        feature_path_arg = Path(args.feature_file)
+        if not feature_path_arg.is_absolute():
+            feature_path_arg = root / feature_path_arg
+        feature_payload = load_json(feature_path_arg)
+        feature_cols = feature_payload["feature_columns"]
+        combo_defs = feature_payload.get("combo_defs", [])
+        model_tag = feature_path_arg.stem.replace("_features", "")
+    else:
+        feature_cols = get_feature_columns(data.columns)
+        model_tag = None
+    if combo_defs:
+        data = add_synthesized_features(data, combo_defs)
     validate_no_missing_or_infinite(data, feature_cols + [TARGET_COL], context="LightGBM 训练数据")
 
     train_idx, valid_idx = time_order_split(
@@ -115,13 +138,17 @@ def main() -> int:
     valid_pred = model.predict(X_valid, num_iteration=model.best_iteration)
     metrics = evaluate_regression(y_valid, valid_pred)
 
-    model_path = model_dir / "official_lgbm.txt"
-    feature_path = model_dir / "official_lgbm_features.json"
-    model.save_model(model_path)
+    if args.feature_file:
+        model_path = output_dir / f"{model_tag or 'selected_lgbm'}.txt"
+        feature_path = output_dir / f"{model_tag or 'selected_lgbm'}_features.json"
+    else:
+        model_path = model_dir / "official_lgbm.txt"
+        feature_path = model_dir / "official_lgbm_features.json"
+    save_lgbm_model(model, model_path)
     save_json({"feature_columns": feature_cols}, feature_path)
 
     result = {
-        "model": "lightgbm",
+        "model": model_tag or ("lightgbm_selected" if args.feature_file else "lightgbm"),
         "sample_rows": args.sample_rows or len(data),
         "train_rows": len(train_idx),
         "valid_rows": len(valid_idx),
@@ -141,16 +168,24 @@ def main() -> int:
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         **metrics,
     }
-    pd.DataFrame([result]).to_csv(output_dir / "official_lgbm_results.csv", index=False)
+    if args.feature_file:
+        results_csv = output_dir / f"{model_tag or 'selected_lgbm'}_results.csv"
+        preds_csv = output_dir / f"{model_tag or 'selected_lgbm'}_valid_predictions.csv"
+        params_json = output_dir / f"{model_tag or 'selected_lgbm'}_params.json"
+    else:
+        results_csv = output_dir / "official_lgbm_results.csv"
+        preds_csv = output_dir / "official_lgbm_valid_predictions.csv"
+        params_json = output_dir / "official_lgbm_params.json"
+    pd.DataFrame([result]).to_csv(results_csv, index=False)
     pd.DataFrame(
         {
             "row_index": valid_idx,
             "y_true": y_valid,
             "y_pred": valid_pred,
-            "model": "lightgbm",
+            "model": result["model"],
         }
-    ).to_csv(output_dir / "official_lgbm_valid_predictions.csv", index=False)
-    save_json({"params": params}, output_dir / "official_lgbm_params.json")
+    ).to_csv(preds_csv, index=False)
+    save_json({"params": params}, params_json)
     update_model_compare(output_dir)
 
     print(json.dumps(result, ensure_ascii=False, indent=2))

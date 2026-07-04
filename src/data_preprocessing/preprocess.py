@@ -10,7 +10,7 @@ import polars as pl
 import pyarrow.parquet as pq
 
 
-DEFAULT_ROOT = Path(r"E:\DRW")
+DEFAULT_ROOT = Path(__file__).resolve().parents[2]
 TARGET_COL = "label"
 INDEX_COL = "__index_level_0__"
 DEFAULT_DROP_COLS = {TARGET_COL, INDEX_COL}

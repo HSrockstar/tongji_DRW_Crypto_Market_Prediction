@@ -1,4 +1,5 @@
 import importlib
+import importlib.util
 import platform
 import sys
 
@@ -23,8 +24,16 @@ PACKAGES = [
 
 
 def check_package(package_name: str) -> tuple[bool, str]:
+    if package_name == "kaggle":
+        spec = importlib.util.find_spec(package_name)
+        if spec is None:
+            return False, "package not installed"
+        return True, ""
+
     try:
         importlib.import_module(package_name)
+    except SystemExit:
+        return True, ""
     except Exception as exc:
         return False, f"{type(exc).__name__}: {exc}"
     return True, ""

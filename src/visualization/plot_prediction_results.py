@@ -12,7 +12,7 @@ import pandas as pd
 import seaborn as sns
 
 
-DEFAULT_ROOT = Path(r"E:\DRW")
+DEFAULT_ROOT = Path(__file__).resolve().parents[2]
 
 
 def ensure_dir(path: Path) -> Path:

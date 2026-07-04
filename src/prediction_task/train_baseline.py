@@ -23,6 +23,7 @@ from data_preprocessing.preprocess import (  # noqa: E402
     TARGET_COL,
     ensure_dir,
     get_feature_columns,
+    load_json,
     load_parquet_frame,
     save_json,
     validate_no_missing_or_infinite,
@@ -66,6 +67,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sample-rows", type=int, default=None, help="只读取前 N 行做小样本验证")
     parser.add_argument("--valid-fraction", type=float, default=0.2, help="验证集比例")
     parser.add_argument("--gap-rows", type=int, default=0, help="训练集和验证集之间的 gap 行数")
+    parser.add_argument("--feature-file", default=None, help="特征列 JSON，默认使用全部特征")
     parser.add_argument("--alpha", type=float, default=1.0, help="Ridge 正则强度")
     parser.add_argument("--solver", default="lsqr", help="Ridge 求解器，全量数据默认使用 lsqr 避免 SVD 内存压力")
     return parser.parse_args()
@@ -79,7 +81,13 @@ def main() -> int:
 
     data = load_parquet_frame(root, "train.parquet", sample_rows=args.sample_rows, include_label=True)
     data = add_basic_market_features(data)
-    feature_cols = get_feature_columns(data.columns)
+    if args.feature_file:
+        feature_path = Path(args.feature_file)
+        if not feature_path.is_absolute():
+            feature_path = root / feature_path
+        feature_cols = load_json(feature_path)["feature_columns"]
+    else:
+        feature_cols = get_feature_columns(data.columns)
     validate_no_missing_or_infinite(data, feature_cols + [TARGET_COL], context="Ridge 训练数据")
 
     train_idx, valid_idx = time_order_split(
@@ -102,8 +110,13 @@ def main() -> int:
     valid_pred = model.predict(X_valid)
     metrics = evaluate_regression(y_valid, valid_pred)
 
-    model_path = model_dir / "official_ridge.pkl"
-    feature_path = model_dir / "official_ridge_features.json"
+    model_path = model_dir / ("official_ridge_selected.pkl" if args.feature_file else "official_ridge.pkl")
+    feature_path = model_dir / (
+        "official_ridge_selected_features.json" if args.feature_file else "official_ridge_features.json"
+    )
+    if args.feature_file:
+        model_path = output_dir / "selected_ridge.pkl"
+        feature_path = output_dir / "selected_ridge_features.json"
     joblib.dump(model, model_path)
     save_json({"feature_columns": feature_cols}, feature_path)
 

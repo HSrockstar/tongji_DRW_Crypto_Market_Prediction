@@ -1,22 +1,22 @@
 {
-  "project_root": "E:\\DRW",
-  "generated_at": "2026-06-27T00:09:19",
+  "project_root": "D:\\数学建模期末大作业\\tongji_DRW_Crypto_Market_Prediction",
+  "generated_at": "2026-07-03T15:04:38",
   "files": {
     "train.parquet": {
-      "path": "E:\\DRW\\data\\raw\\train.parquet",
+      "path": "D:\\数学建模期末大作业\\tongji_DRW_Crypto_Market_Prediction\\data\\raw\\train.parquet",
       "size_mb": 3172.6
     },
     "test.parquet": {
-      "path": "E:\\DRW\\data\\raw\\test.parquet",
+      "path": "D:\\数学建模期末大作业\\tongji_DRW_Crypto_Market_Prediction\\data\\raw\\test.parquet",
       "size_mb": 3264.47
     },
     "sample_submission.csv": {
-      "path": "E:\\DRW\\data\\raw\\sample_submission.csv",
+      "path": "D:\\数学建模期末大作业\\tongji_DRW_Crypto_Market_Prediction\\data\\raw\\sample_submission.csv",
       "size_mb": 13.56
     }
   },
   "train": {
-    "path": "E:\\DRW\\data\\raw\\train.parquet",
+    "path": "D:\\数学建模期末大作业\\tongji_DRW_Crypto_Market_Prediction\\data\\raw\\train.parquet",
     "size_mb": 3172.6,
     "row_count": 525886,
     "column_count": 787,
@@ -851,7 +851,7 @@
     }
   },
   "test": {
-    "path": "E:\\DRW\\data\\raw\\test.parquet",
+    "path": "D:\\数学建模期末大作业\\tongji_DRW_Crypto_Market_Prediction\\data\\raw\\test.parquet",
     "size_mb": 3264.47,
     "row_count": 538150,
     "column_count": 786,
@@ -1685,7 +1685,7 @@
     }
   },
   "sample_submission": {
-    "path": "E:\\DRW\\data\\raw\\sample_submission.csv",
+    "path": "D:\\数学建模期末大作业\\tongji_DRW_Crypto_Market_Prediction\\data\\raw\\sample_submission.csv",
     "size_mb": 13.56,
     "row_count": 538150,
     "column_count": 2,
@@ -1740,10 +1740,5 @@
       "volume"
     ],
     "test_market_fields_missing": []
-  },
-  "sha256": {
-    "train.parquet": "9ed0792a0d3e5d7deb92d1b56ada53a873b2b17eb0642051afc52b264ec85fb1",
-    "test.parquet": "8559d07267aa78b05c4e0928727f127985250bdab665ceb34cbdee1987871eb1",
-    "sample_submission.csv": "8d679343358ec4bf8f28d74b6296d3503cabb3f4a4b0c2dd7c922577ad9e66a9"
   }
 }

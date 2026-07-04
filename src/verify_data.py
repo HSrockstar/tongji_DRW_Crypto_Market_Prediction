@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 
-DEFAULT_ROOT = Path(r"E:\DRW")
+DEFAULT_ROOT = Path(__file__).resolve().parents[1]
 RAW_FILES = ["train.parquet", "test.parquet", "sample_submission.csv"]
 PARQUET_FILES = ["train.parquet", "test.parquet"]
 MARKET_FIELDS = ["bid_qty", "ask_qty", "buy_qty", "sell_qty", "volume"]
