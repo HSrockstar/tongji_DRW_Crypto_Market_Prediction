@@ -3,8 +3,9 @@
 ## 项目信息
 
 - 项目名称：DRW Crypto Market Prediction
-- 项目路径：`E:\DRW`
-- 当前阶段：环境配置与数据校验
+- 项目路径：以仓库根目录为准（本地示例：`D:\数学建模期末大作业\tongji_DRW_Crypto_Market_Prediction`）
+- 当前阶段：官方预测 baseline 已完成；5 折时间 CV 与特征组消融已有初版结果；报告/PPT/视频待撰写
+- 最近同步：`origin/main` @ `b96cbb1`（7.3 增加交叉验证）
 
 ## 目录结构
 
@@ -50,37 +51,64 @@ data/raw/sample_submission.csv
 
 ## 环境依赖
 
-推荐使用已有 conda 环境：
+推荐在本机使用虚拟环境（Windows 示例）：
 
 ```powershell
-conda activate drw
-pip install -r requirements.txt
+.\scripts\setup_env.ps1
+.\.venv\Scripts\Activate.ps1
 ```
 
-如果 PowerShell 中 `conda activate drw` 因本地 PATH 编码问题失败，可以直接使用环境内 Python：
+也可手动安装：
 
 ```powershell
-E:\miniconda\envs\drw\python.exe E:\DRW\src\check_env.py
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe src\check_env.py
 ```
 
 ## 当前已完成事项
 
-- 目录创建
-- conda 环境检查
-- Kaggle 数据下载或确认
-- 数据文件解压或确认
-- 环境校验脚本：`src/check_env.py`
-- 数据校验脚本：`src/verify_data.py`
+### 环境与数据
+
+- 目录结构与依赖：`requirements.txt`、`.gitignore`
+- 本地虚拟环境：`.venv`（本机）
+- Kaggle 竞赛已加入，原始数据已下载并校验：`data/raw/train.parquet`、`test.parquet`
+- 环境/数据脚本：`src/check_env.py`、`src/verify_data.py`
+- 本机辅助脚本（未提交）：`scripts/setup_env.ps1`、`scripts/download_data.ps1`
 - 校验报告：`outputs/data_check_report.json`
-- GitHub 上传前的 `.gitignore` 与 `requirements.txt`
+
+### 任务一：官方预测
+
+- 数据预处理与基础特征：`src/data_preprocessing/`
+- 单次 holdout 验证：Ridge / LightGBM / Lasso（`outputs/experiments/official_*`）
+- 提交文件：`outputs/submissions/submission.csv`
+- 已保存模型：`models/official_ridge.pkl`、`official_lgbm.txt`、`official_lasso.pkl`
+
+### 任务二：特征有效性（初版）
+
+- 5 折 walk-forward 特征组消融（Ridge）：`outputs/experiments/feature_group_cv_*.csv`
+- 对比图：`outputs/figures/feature_effectiveness/feature_group_compare.png`
+- 待补充：LightGBM importance / SHAP、更完整的 G1~G6 实验说明
+
+### 任务三：时间稳定性（初版）
+
+- 5 折 expanding window CV：`src/prediction_task/run_time_cv_experiments.py`
+- 结果：`outputs/experiments/cv_results.csv`、`cv_summary.csv`
+- 趋势图：`outputs/figures/prediction_task/cv_pearson_by_fold.png`
+
+### 待完成
+
+- Kaggle 正式提交与成绩截图
+- 报告 PDF、PPT、约 8 分钟汇报视频
+- 特征解释与时间稳定性章节的文字分析
 
 ## 校验方法
 
 ```powershell
-conda activate drw
-python E:\DRW\src\check_env.py
-python E:\DRW\src\verify_data.py --root E:\DRW
-python E:\DRW\src\verify_data.py --root E:\DRW --hash
+.\.venv\Scripts\Activate.ps1
+python src\check_env.py
+python src\verify_data.py --root .
+python src\verify_data.py --root . --hash
 ```
 
 ## 已确认的数据概况
@@ -112,8 +140,8 @@ python E:\DRW\src\verify_data.py --root E:\DRW --hash
 
 ## 下一步建议
 
-1. EDA
-2. 时间顺序验证集划分
-3. baseline 模型
-4. 生成 `submission.csv`
-5. 上传 Kaggle 并保存成绩截图
+1. 用最新全量数据重跑 CV / 特征消融，确认结果可复现
+2. 补充 LightGBM 特征重要性与 SHAP 分析（任务二）
+3. 整理时间 CV 图表与文字结论（任务三）
+4. 提交 Kaggle 并保存成绩截图
+5. 撰写 PDF 报告、PPT 与汇报视频
