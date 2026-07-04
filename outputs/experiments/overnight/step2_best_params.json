@@ -1,0 +1,24 @@
+{
+  "params": {
+    "num_leaves": 31,
+    "min_data_in_leaf": 500,
+    "lambda_l1": 0.0,
+    "lambda_l2": 50.0,
+    "feature_fraction": 0.7
+  },
+  "purged_cv": {
+    "num_leaves": 31,
+    "min_data_in_leaf": 500,
+    "lambda_l1": 0.0,
+    "lambda_l2": 50.0,
+    "feature_fraction": 0.7,
+    "pearson_mean": 0.09636306715924103,
+    "pearson_std": 0.02362689501589979,
+    "fold_pearsons": [
+      0.10171172718374388,
+      0.0855062040265656,
+      0.13129845893365252,
+      0.06693587849300209
+    ]
+  }
+}
