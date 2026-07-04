@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-07-04T20:50:17",
+  "metrics_csv": "E:\\DRW\\outputs\\experiments\\tree_baseline_overall_extreme_metrics.csv",
+  "report": "E:\\DRW\\outputs\\reports\\tree_baseline_overall_extreme_compare.md",
+  "catboost_prediction_csv": "E:\\DRW\\outputs\\experiments\\tree_baseline_catboost_valid_predictions.csv",
+  "xgboost_prediction_csv": "E:\\DRW\\outputs\\experiments\\tree_baseline_xgboost_valid_predictions.csv",
+  "training_info": {
+    "feature_count": 792,
+    "train_rows": 420709,
+    "valid_rows": 105177,
+    "catboost_model_path": "E:\\DRW\\models\\tree_baseline_catboost.cbm",
+    "xgboost_model_path": "E:\\DRW\\models\\tree_baseline_xgboost.json",
+    "catboost_best_iteration": 63,
+    "xgboost_best_iteration": 39,
+    "catboost_overall_metrics": {
+      "pearson": 0.07939894257823542,
+      "rmse": 1.0394048289751463,
+      "mae": 0.6980529170152406
+    },
+    "xgboost_overall_metrics": {
+      "pearson": 0.09959816554513914,
+      "rmse": 1.0378603838984557,
+      "mae": 0.6970457130475592
+    }
+  }
+}

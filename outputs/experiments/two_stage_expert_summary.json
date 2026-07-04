@@ -1,0 +1,33 @@
+{
+  "generated_at": "2026-07-04T21:22:20",
+  "prediction_csv": "E:\\DRW\\outputs\\experiments\\two_stage_expert_valid_predictions.csv",
+  "alpha_search_csv": "E:\\DRW\\outputs\\experiments\\two_stage_expert_alpha_search.csv",
+  "metrics_csv": "E:\\DRW\\outputs\\experiments\\two_stage_expert_all_models_metrics.csv",
+  "bias_analysis_csv": "E:\\DRW\\outputs\\experiments\\two_stage_expert_bias_analysis.csv",
+  "report": "E:\\DRW\\outputs\\reports\\two_stage_expert_report.md",
+  "training_info": {
+    "train_abs_label_q95": 1.9748510360717764,
+    "normal_train_rows": 399673,
+    "positive_extreme_train_rows": 11736,
+    "negative_extreme_train_rows": 9300,
+    "normal_valid_rows_by_train_threshold": 99210,
+    "positive_extreme_valid_rows_by_train_threshold": 3649,
+    "negative_extreme_valid_rows_by_train_threshold": 2318,
+    "detector_best_iteration": 642,
+    "pos_expert_best_iteration": 1,
+    "neg_expert_best_iteration": 6,
+    "best_alpha": 0.15000000000000002,
+    "detector_model_path": "E:\\DRW\\models\\two_stage_extreme_detector.txt",
+    "pos_expert_model_path": "E:\\DRW\\models\\two_stage_pos_residual_expert.txt",
+    "neg_expert_model_path": "E:\\DRW\\models\\two_stage_neg_residual_expert.txt"
+  },
+  "best_alpha_row": {
+    "alpha": 0.15000000000000002,
+    "overall_pearson": 0.09794744177865623,
+    "overall_rmse": 1.040433583551036,
+    "overall_mae": 0.6996017441026462,
+    "extreme_pearson": 0.2229363653380072,
+    "extreme_rmse": 3.366955483578411,
+    "extreme_mae": 3.145742886405095
+  }
+}

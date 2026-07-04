@@ -1,0 +1,44 @@
+{
+  "environment": "E:\\miniconda\\envs\\drw\\python.exe",
+  "valid_rows": 105177,
+  "q80": 1.0468886613845825,
+  "q95": 2.0864089012145994,
+  "model_metrics_csv": "E:\\DRW\\outputs\\experiments\\extreme_volatility_model_metrics.csv",
+  "error_contribution_csv": "E:\\DRW\\outputs\\experiments\\extreme_volatility_error_contribution.csv",
+  "overall_metrics": [
+    {
+      "model": "ridge",
+      "pearson": 0.09190551668094783,
+      "rmse": 1.2275199828689816,
+      "mae": 0.8685829944204981
+    },
+    {
+      "model": "lightgbm",
+      "pearson": 0.10235862829968688,
+      "rmse": 1.0391435114885461,
+      "mae": 0.6984824662618114
+    }
+  ],
+  "extreme_group_metrics": [
+    {
+      "model": "ridge",
+      "sample_count": 5259,
+      "sample_ratio": 0.05000142616731795,
+      "pearson": 0.31082117965387324,
+      "rmse": 3.284292336051657,
+      "mae": 2.9576800547103033,
+      "squared_error_contribution": 0.35793887100648925,
+      "absolute_error_contribution": 0.17026377655576172
+    },
+    {
+      "model": "lightgbm",
+      "sample_count": 5259,
+      "sample_ratio": 0.05000142616731795,
+      "pearson": 0.26953557680155,
+      "rmse": 3.3679585663128844,
+      "mae": 3.149083988193071,
+      "squared_error_contribution": 0.5252484886008325,
+      "absolute_error_contribution": 0.22542969671524857
+    }
+  ]
+}

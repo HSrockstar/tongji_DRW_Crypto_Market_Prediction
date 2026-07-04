@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-07-04T20:58:55",
+  "blend_objective": "extreme-rmse",
+  "weight_step": 0.05,
+  "best_weights": {
+    "lightgbm": 1.0,
+    "catboost": 0.0,
+    "xgboost": 0.0
+  },
+  "best_weight_sum": 1.0,
+  "tree_blend_prediction_csv": "E:\\DRW\\outputs\\experiments\\tree_blend_valid_predictions.csv",
+  "weight_search_csv": "E:\\DRW\\outputs\\experiments\\tree_blend_weight_search.csv",
+  "metrics_csv": "E:\\DRW\\outputs\\experiments\\tree_blend_all_models_overall_extreme_metrics.csv",
+  "report": "E:\\DRW\\outputs\\reports\\tree_blend_all_models_compare.md",
+  "figures": [
+    "E:\\DRW\\outputs\\figures\\extreme_volatility\\tree_blend_overall_metrics.png",
+    "E:\\DRW\\outputs\\figures\\extreme_volatility\\tree_blend_extreme_metrics.png",
+    "E:\\DRW\\outputs\\figures\\extreme_volatility\\tree_blend_weights.png"
+  ],
+  "best_search_row": {
+    "w_lgbm": 1.0,
+    "w_catboost": 0.0,
+    "w_xgboost": 0.0,
+    "weight_sum": 1.0,
+    "overall_pearson": 0.10235862829968688,
+    "overall_rmse": 1.0391435114885461,
+    "overall_mae": 0.6984824662618114,
+    "extreme_pearson": 0.26953557680155,
+    "extreme_rmse": 3.3679585663128844,
+    "extreme_mae": 3.149083988193071
+  }
+}

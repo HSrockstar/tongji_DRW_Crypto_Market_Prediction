@@ -1,0 +1,83 @@
+{
+  "generated_at": "2026-07-04T20:20:03",
+  "metrics_csv": "E:\\DRW\\outputs\\experiments\\extreme_volatility_model_metrics.csv",
+  "error_contribution_csv": "E:\\DRW\\outputs\\experiments\\extreme_volatility_error_contribution.csv",
+  "weighted_lgbm_prediction_csv": "E:\\DRW\\outputs\\experiments\\extreme_volatility_weighted_lgbm_valid_predictions.csv",
+  "report": "E:\\DRW\\outputs\\reports\\extreme_volatility_weighted_lgbm_report.md",
+  "figures": [
+    "E:\\DRW\\outputs\\figures\\extreme_volatility\\label_abs_distribution.png",
+    "E:\\DRW\\outputs\\figures\\extreme_volatility\\group_rmse_compare.png",
+    "E:\\DRW\\outputs\\figures\\extreme_volatility\\group_mae_compare.png",
+    "E:\\DRW\\outputs\\figures\\extreme_volatility\\group_pearson_compare.png",
+    "E:\\DRW\\outputs\\figures\\extreme_volatility\\error_contribution.png",
+    "E:\\DRW\\outputs\\figures\\extreme_volatility\\weighted_lgbm_delta.png"
+  ],
+  "training_info": {
+    "train_abs_label_q80": 0.9170353174209597,
+    "train_abs_label_q95": 1.9748510360717764,
+    "normal_weight": 1.0,
+    "medium_weight": 1.5,
+    "extreme_weight": 3.0,
+    "normal_train_rows": 336567,
+    "medium_train_rows": 63106,
+    "extreme_train_rows": 21036,
+    "weighted_lgbm_best_iteration": 296,
+    "weighted_lgbm_prediction_csv": "E:\\DRW\\outputs\\experiments\\extreme_volatility_weighted_lgbm_valid_predictions.csv",
+    "weighted_lgbm_model_path": "E:\\DRW\\models\\extreme_volatility_weighted_lgbm.txt",
+    "weighted_lgbm_overall_metrics": {
+      "pearson": 0.07239295932068678,
+      "rmse": 1.079566257197704,
+      "mae": 0.7414899560096104
+    }
+  },
+  "weighted_vs_lgbm_delta": [
+    {
+      "metric": "整体 Pearson",
+      "delta": -0.02996566897900009
+    },
+    {
+      "metric": "整体 RMSE",
+      "delta": 0.04042274570915794
+    },
+    {
+      "metric": "整体 MAE",
+      "delta": 0.043007489747799
+    },
+    {
+      "metric": "普通 Pearson",
+      "delta": -0.02261356487294367
+    },
+    {
+      "metric": "普通 RMSE",
+      "delta": 0.08134506818322085
+    },
+    {
+      "metric": "普通 MAE",
+      "delta": 0.056212564830502465
+    },
+    {
+      "metric": "中等 Pearson",
+      "delta": -0.06509986896535078
+    },
+    {
+      "metric": "中等 RMSE",
+      "delta": 0.0423464876548767
+    },
+    {
+      "metric": "中等 MAE",
+      "delta": -0.004496855949639222
+    },
+    {
+      "metric": "异常 Pearson",
+      "delta": -0.03699461033017387
+    },
+    {
+      "metric": "异常 RMSE",
+      "delta": -0.01144186794429869
+    },
+    {
+      "metric": "异常 MAE",
+      "delta": -0.025753141639394794
+    }
+  ]
+}

@@ -1,0 +1,194 @@
+{
+  "generated_at": "2026-07-04T20:41:05",
+  "metrics_csv": "E:\\DRW\\outputs\\experiments\\extreme_volatility_continuous_weighted_lgbm_model_metrics.csv",
+  "error_contribution_csv": "E:\\DRW\\outputs\\experiments\\extreme_volatility_continuous_weighted_lgbm_error_contribution.csv",
+  "weighted_lgbm_prediction_csv": "E:\\DRW\\outputs\\experiments\\extreme_volatility_continuous_weighted_lgbm_valid_predictions.csv",
+  "report": "E:\\DRW\\outputs\\reports\\extreme_volatility_continuous_weighted_lgbm_report.md",
+  "figures": [
+    "E:\\DRW\\outputs\\figures\\extreme_volatility\\label_abs_distribution.png",
+    "E:\\DRW\\outputs\\figures\\extreme_volatility\\group_rmse_compare.png",
+    "E:\\DRW\\outputs\\figures\\extreme_volatility\\group_mae_compare.png",
+    "E:\\DRW\\outputs\\figures\\extreme_volatility\\group_pearson_compare.png",
+    "E:\\DRW\\outputs\\figures\\extreme_volatility\\error_contribution.png",
+    "E:\\DRW\\outputs\\figures\\extreme_volatility\\weighted_lgbm_delta.png"
+  ],
+  "training_info": {
+    "weight_mode": "continuous",
+    "train_abs_label_q80": 0.9170353174209597,
+    "train_abs_label_q95": 1.9748510360717764,
+    "continuous_tail_quantile": 0.99,
+    "train_abs_label_tail_threshold": 3.81038042068481,
+    "normal_weight": 1.0,
+    "medium_weight": 1.5,
+    "extreme_weight": 3.0,
+    "normal_train_rows": 336567,
+    "medium_train_rows": 63106,
+    "extreme_train_rows": 21036,
+    "weight_min": 1.0,
+    "weight_mean": 1.0871872901916504,
+    "weight_std": 0.29505497217178345,
+    "weight_max": 3.0,
+    "model_key": "continuous_weighted_lightgbm",
+    "weighted_lgbm_best_iteration": 153,
+    "weighted_lgbm_prediction_csv": "E:\\DRW\\outputs\\experiments\\extreme_volatility_continuous_weighted_lgbm_valid_predictions.csv",
+    "weighted_lgbm_model_path": "E:\\DRW\\models\\extreme_volatility_continuous_weighted_lgbm.txt",
+    "weighted_lgbm_overall_metrics": {
+      "pearson": 0.06823632005222063,
+      "rmse": 1.0567883811222378,
+      "mae": 0.7201587677870591
+    }
+  },
+  "weighted_vs_lgbm_delta": [
+    {
+      "metric": "整体 Pearson",
+      "delta": -0.03412230824746626
+    },
+    {
+      "metric": "整体 RMSE",
+      "delta": 0.017644869633691718
+    },
+    {
+      "metric": "整体 MAE",
+      "delta": 0.021676301525247688
+    },
+    {
+      "metric": "普通 Pearson",
+      "delta": -0.039943245829606275
+    },
+    {
+      "metric": "普通 RMSE",
+      "delta": 0.03995728396463516
+    },
+    {
+      "metric": "普通 MAE",
+      "delta": 0.028490118392238695
+    },
+    {
+      "metric": "中等 Pearson",
+      "delta": -0.05784797087051957
+    },
+    {
+      "metric": "中等 RMSE",
+      "delta": 0.01784801596604768
+    },
+    {
+      "metric": "中等 MAE",
+      "delta": -0.0012875321026002418
+    },
+    {
+      "metric": "异常 Pearson",
+      "delta": -0.034627728757771675
+    },
+    {
+      "metric": "异常 RMSE",
+      "delta": -0.012785102739636844
+    },
+    {
+      "metric": "异常 MAE",
+      "delta": -0.018449380516761593
+    }
+  ],
+  "weight_scheme_delta": [
+    {
+      "group": "整体",
+      "metric": "pearson",
+      "delta": -0.00415663926846617
+    },
+    {
+      "group": "整体",
+      "metric": "rmse",
+      "delta": -0.02277787607546622
+    },
+    {
+      "group": "整体",
+      "metric": "mae",
+      "delta": -0.02133118822255131
+    },
+    {
+      "group": "整体",
+      "metric": "squared_error_contribution",
+      "delta": 0.0
+    },
+    {
+      "group": "整体",
+      "metric": "absolute_error_contribution",
+      "delta": 0.0
+    },
+    {
+      "group": "普通波动",
+      "metric": "pearson",
+      "delta": -0.017329680956662603
+    },
+    {
+      "group": "普通波动",
+      "metric": "rmse",
+      "delta": -0.04138778421858569
+    },
+    {
+      "group": "普通波动",
+      "metric": "mae",
+      "delta": -0.02772244643826377
+    },
+    {
+      "group": "普通波动",
+      "metric": "squared_error_contribution",
+      "delta": -0.02325255110133828
+    },
+    {
+      "group": "普通波动",
+      "metric": "absolute_error_contribution",
+      "delta": -0.01577810755902176
+    },
+    {
+      "group": "中等波动",
+      "metric": "pearson",
+      "delta": 0.007251898094831205
+    },
+    {
+      "group": "中等波动",
+      "metric": "rmse",
+      "delta": -0.024498471688829015
+    },
+    {
+      "group": "中等波动",
+      "metric": "mae",
+      "delta": 0.0032093238470389807
+    },
+    {
+      "group": "中等波动",
+      "metric": "squared_error_contribution",
+      "delta": 0.0025955298068532917
+    },
+    {
+      "group": "中等波动",
+      "metric": "absolute_error_contribution",
+      "delta": 0.009032474495948073
+    },
+    {
+      "group": "异常波动",
+      "metric": "pearson",
+      "delta": 0.0023668815724021963
+    },
+    {
+      "group": "异常波动",
+      "metric": "rmse",
+      "delta": -0.0013432347953381552
+    },
+    {
+      "group": "异常波动",
+      "metric": "mae",
+      "delta": 0.007303761122633201
+    },
+    {
+      "group": "异常波动",
+      "metric": "squared_error_contribution",
+      "delta": 0.020657021294484823
+    },
+    {
+      "group": "异常波动",
+      "metric": "absolute_error_contribution",
+      "delta": 0.006745633063073603
+    }
+  ],
+  "weight_scheme_delta_csv": "E:\\DRW\\outputs\\experiments\\extreme_volatility_weight_scheme_delta.csv"
+}

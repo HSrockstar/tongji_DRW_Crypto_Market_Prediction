@@ -1,0 +1,82 @@
+{
+  "environment": "E:\\miniconda\\envs\\drw\\python.exe",
+  "same_len": true,
+  "same_row_index": true,
+  "same_y_true": true,
+  "valid_rows": 105177,
+  "valid_row_index_start": 420709,
+  "valid_row_index_end": 525885,
+  "metrics_recomputed": [
+    {
+      "model": "ridge",
+      "pearson": 0.09190551668094783,
+      "rmse": 1.2275199828689816,
+      "mae": 0.8685829944204981
+    },
+    {
+      "model": "lightgbm",
+      "pearson": 0.10235862829968688,
+      "rmse": 1.0391435114885461,
+      "mae": 0.6984824662618114
+    }
+  ],
+  "metric_diff_vs_official_model_compare": {
+    "ridge": {
+      "pearson": 5.043035433693888e-12,
+      "rmse": -8.151324060179377e-11,
+      "mae": -3.4156233397197866e-11
+    },
+    "lightgbm": {
+      "pearson": 8.326672684688674e-17,
+      "rmse": 2.220446049250313e-16,
+      "mae": 0.0
+    }
+  },
+  "abs_label_q80_threshold": 1.0468886613845825,
+  "abs_label_q95_threshold": 2.0864089012145994,
+  "group_stats": [
+    {
+      "group": "普通波动",
+      "definition": "abs(label) <= 1.04688866138",
+      "sample_count": 84141,
+      "sample_ratio": 0.7999942953307282,
+      "abs_label_min": 4.655245720641688e-05,
+      "abs_label_max": 1.0468775033950806,
+      "label_mean": 0.013515187169144393,
+      "label_std": 0.4984709705030762,
+      "label_min": -1.0468775033950806,
+      "label_max": 1.046808123588562,
+      "abs_label_q80_threshold": 1.0468886613845825,
+      "abs_label_q95_threshold": 2.0864089012145994
+    },
+    {
+      "group": "中等波动",
+      "definition": "1.04688866138 < abs(label) <= 2.08640890121",
+      "sample_count": 15777,
+      "sample_ratio": 0.15000427850195386,
+      "abs_label_min": 1.046891450881958,
+      "abs_label_max": 2.0864081382751465,
+      "label_mean": 0.21068785525610476,
+      "label_std": 1.4273526376926777,
+      "label_min": -2.0862748622894287,
+      "label_max": 2.0864081382751465,
+      "abs_label_q80_threshold": 1.0468886613845825,
+      "abs_label_q95_threshold": 2.0864089012145994
+    },
+    {
+      "group": "异常波动",
+      "definition": "abs(label) > 2.08640890121",
+      "sample_count": 5259,
+      "sample_ratio": 0.05000142616731795,
+      "abs_label_min": 2.086411952972412,
+      "abs_label_max": 11.447980880737305,
+      "label_mean": 0.7127763189093471,
+      "label_std": 3.3148394575364604,
+      "label_min": -11.447980880737305,
+      "label_max": 10.128518104553224,
+      "abs_label_q80_threshold": 1.0468886613845825,
+      "abs_label_q95_threshold": 2.0864089012145994
+    }
+  ],
+  "group_stats_csv": "E:\\DRW\\outputs\\experiments\\extreme_volatility_group_stats.csv"
+}

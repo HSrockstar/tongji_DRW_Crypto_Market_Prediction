@@ -1,0 +1,46 @@
+{
+  "generated_at": "2026-07-04T21:53:26",
+  "constant_prediction_csv": "E:\\DRW\\outputs\\experiments\\two_stage_constant_calibration_valid_predictions.csv",
+  "ridge_prediction_csv": "E:\\DRW\\outputs\\experiments\\two_stage_ridge_expert_valid_predictions.csv",
+  "constant_alpha_search_csv": "E:\\DRW\\outputs\\experiments\\two_stage_constant_calibration_alpha_search.csv",
+  "ridge_alpha_search_csv": "E:\\DRW\\outputs\\experiments\\two_stage_ridge_expert_alpha_search.csv",
+  "metrics_csv": "E:\\DRW\\outputs\\experiments\\two_stage_alternative_experts_metrics.csv",
+  "bias_analysis_csv": "E:\\DRW\\outputs\\experiments\\two_stage_alternative_experts_bias_analysis.csv",
+  "report": "E:\\DRW\\outputs\\reports\\two_stage_alternative_experts_report.md",
+  "training_info": {
+    "train_abs_label_q95": 1.9748510360717764,
+    "positive_extreme_train_rows": 11736,
+    "negative_extreme_train_rows": 9300,
+    "pos_bias": 2.7710490075419294,
+    "neg_bias": -2.9861240492538044,
+    "constant_best_alpha": 0.1,
+    "ridge_best_alpha": 0.25,
+    "ridge_alpha": 100000.0,
+    "ridge_solver": "lsqr",
+    "ridge_correction_clip": 5.0,
+    "ridge_correction_raw_min": -3.7092657694442632,
+    "ridge_correction_raw_max": 8042.785142862095,
+    "ridge_correction_min": -3.7092657694442632,
+    "ridge_correction_max": 5.0,
+    "pos_ridge_model_path": "E:\\DRW\\models\\two_stage_pos_ridge_residual_expert.pkl",
+    "neg_ridge_model_path": "E:\\DRW\\models\\two_stage_neg_ridge_residual_expert.pkl"
+  },
+  "constant_best_alpha_row": {
+    "alpha": 0.1,
+    "overall_pearson": 0.10021366125889507,
+    "overall_rmse": 1.0397846994386362,
+    "overall_mae": 0.6990959704270991,
+    "extreme_pearson": 0.23852367976286232,
+    "extreme_rmse": 3.3670771736295215,
+    "extreme_mae": 3.146928314487048
+  },
+  "ridge_best_alpha_row": {
+    "alpha": 0.25,
+    "overall_pearson": 0.09575857378125292,
+    "overall_rmse": 1.0417921838852437,
+    "overall_mae": 0.7009304127548067,
+    "extreme_pearson": 0.21543258458644235,
+    "extreme_rmse": 3.364696389834353,
+    "extreme_mae": 3.14192864219743
+  }
+}
