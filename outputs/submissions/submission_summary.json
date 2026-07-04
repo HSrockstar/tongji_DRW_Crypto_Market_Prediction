@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-06-27T00:11:46",
-  "model": "E:\\DRW\\models\\official_lgbm.txt",
+  "generated_at": "2026-07-04T00:35:29",
+  "model": "D:\\数学建模期末大作业\\tongji_DRW_Crypto_Market_Prediction\\models\\official_lgbm.txt",
   "model_type": "lightgbm",
-  "feature_file": "E:\\DRW\\models\\official_lgbm_features.json",
-  "output": "E:\\DRW\\outputs\\submissions\\submission.csv",
+  "feature_file": "D:\\数学建模期末大作业\\tongji_DRW_Crypto_Market_Prediction\\models\\official_lgbm_features.json",
+  "output": "D:\\数学建模期末大作业\\tongji_DRW_Crypto_Market_Prediction\\outputs\\submissions\\submission.csv",
   "rows": 538150,
   "smoke_rows": null,
-  "prediction_mean": 0.02227034092821365,
-  "prediction_std": 0.02707027453712239,
-  "prediction_min": -0.26427937006930186,
-  "prediction_max": 0.2711337774787193,
+  "prediction_mean": -0.02113731759197256,
+  "prediction_std": 0.18913666777706967,
+  "prediction_min": -1.8605626604866095,
+  "prediction_max": 0.892543819773479,
   "has_nan_or_inf": false
 }
