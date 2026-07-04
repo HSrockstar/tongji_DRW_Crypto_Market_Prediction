@@ -1,0 +1,300 @@
+{
+  "top_x_features": [
+    "X772",
+    "X777",
+    "X766",
+    "X614",
+    "X602",
+    "X547",
+    "X752",
+    "X759",
+    "X367",
+    "X604"
+  ],
+  "combo_count": 30,
+  "combo_defs": [
+    {
+      "name": "syn_add_X752_X759",
+      "left": "X752",
+      "right": "X759",
+      "op": "add"
+    },
+    {
+      "name": "syn_add_X614_X752",
+      "left": "X614",
+      "right": "X752",
+      "op": "add"
+    },
+    {
+      "name": "syn_add_X752_X367",
+      "left": "X752",
+      "right": "X367",
+      "op": "add"
+    },
+    {
+      "name": "syn_mul_X777_X752",
+      "left": "X777",
+      "right": "X752",
+      "op": "mul"
+    },
+    {
+      "name": "syn_add_X766_X752",
+      "left": "X766",
+      "right": "X752",
+      "op": "add"
+    },
+    {
+      "name": "syn_add_X614_X759",
+      "left": "X614",
+      "right": "X759",
+      "op": "add"
+    },
+    {
+      "name": "syn_add_X602_X752",
+      "left": "X602",
+      "right": "X752",
+      "op": "add"
+    },
+    {
+      "name": "syn_add_X759_X367",
+      "left": "X759",
+      "right": "X367",
+      "op": "add"
+    },
+    {
+      "name": "syn_sub_X777_X752",
+      "left": "X777",
+      "right": "X752",
+      "op": "sub"
+    },
+    {
+      "name": "syn_add_X777_X752",
+      "left": "X777",
+      "right": "X752",
+      "op": "add"
+    },
+    {
+      "name": "syn_mul_X766_X752",
+      "left": "X766",
+      "right": "X752",
+      "op": "mul"
+    },
+    {
+      "name": "syn_add_X614_X367",
+      "left": "X614",
+      "right": "X367",
+      "op": "add"
+    },
+    {
+      "name": "syn_sub_X547_X752",
+      "left": "X547",
+      "right": "X752",
+      "op": "sub"
+    },
+    {
+      "name": "syn_add_X766_X759",
+      "left": "X766",
+      "right": "X759",
+      "op": "add"
+    },
+    {
+      "name": "syn_sub_X772_X752",
+      "left": "X772",
+      "right": "X752",
+      "op": "sub"
+    },
+    {
+      "name": "syn_sub_X752_X604",
+      "left": "X752",
+      "right": "X604",
+      "op": "sub"
+    },
+    {
+      "name": "syn_add_X772_X752",
+      "left": "X772",
+      "right": "X752",
+      "op": "add"
+    },
+    {
+      "name": "syn_sub_X602_X752",
+      "left": "X602",
+      "right": "X752",
+      "op": "sub"
+    },
+    {
+      "name": "syn_add_X766_X614",
+      "left": "X766",
+      "right": "X614",
+      "op": "add"
+    },
+    {
+      "name": "syn_add_X602_X759",
+      "left": "X602",
+      "right": "X759",
+      "op": "add"
+    },
+    {
+      "name": "syn_mul_X766_X759",
+      "left": "X766",
+      "right": "X759",
+      "op": "mul"
+    },
+    {
+      "name": "syn_add_X547_X752",
+      "left": "X547",
+      "right": "X752",
+      "op": "add"
+    },
+    {
+      "name": "syn_sub_X752_X367",
+      "left": "X752",
+      "right": "X367",
+      "op": "sub"
+    },
+    {
+      "name": "syn_mul_X766_X367",
+      "left": "X766",
+      "right": "X367",
+      "op": "mul"
+    },
+    {
+      "name": "syn_sub_X777_X759",
+      "left": "X777",
+      "right": "X759",
+      "op": "sub"
+    },
+    {
+      "name": "syn_sub_X614_X752",
+      "left": "X614",
+      "right": "X752",
+      "op": "sub"
+    },
+    {
+      "name": "syn_add_X752_X604",
+      "left": "X752",
+      "right": "X604",
+      "op": "add"
+    },
+    {
+      "name": "syn_sub_X759_X604",
+      "left": "X759",
+      "right": "X604",
+      "op": "sub"
+    },
+    {
+      "name": "syn_sub_X547_X759",
+      "left": "X547",
+      "right": "X759",
+      "op": "sub"
+    },
+    {
+      "name": "syn_add_X766_X367",
+      "left": "X766",
+      "right": "X367",
+      "op": "add"
+    }
+  ],
+  "base_feature_file": "outputs/experiments/medoid_features_tuned.json",
+  "feature_columns": [
+    "X118",
+    "X120",
+    "X162",
+    "X186",
+    "X253",
+    "X276",
+    "X286",
+    "X322",
+    "X325",
+    "X365",
+    "X367",
+    "X39",
+    "X409",
+    "X498",
+    "X505",
+    "X516",
+    "X519",
+    "X529",
+    "X531",
+    "X545",
+    "X546",
+    "X549",
+    "X568",
+    "X6",
+    "X602",
+    "X603",
+    "X604",
+    "X614",
+    "X624",
+    "X633",
+    "X641",
+    "X653",
+    "X661",
+    "X669",
+    "X681",
+    "X689",
+    "X697",
+    "X709",
+    "X717",
+    "X725",
+    "X727",
+    "X737",
+    "X744",
+    "X745",
+    "X750",
+    "X751",
+    "X752",
+    "X756",
+    "X757",
+    "X758",
+    "X759",
+    "X766",
+    "X770",
+    "X771",
+    "X772",
+    "X778",
+    "ask_qty",
+    "bid_qty",
+    "book_imbalance",
+    "book_total_qty",
+    "buy_qty",
+    "log_volume",
+    "sell_qty",
+    "syn_add_X547_X752",
+    "syn_add_X602_X752",
+    "syn_add_X602_X759",
+    "syn_add_X614_X367",
+    "syn_add_X614_X752",
+    "syn_add_X614_X759",
+    "syn_add_X752_X367",
+    "syn_add_X752_X604",
+    "syn_add_X752_X759",
+    "syn_add_X759_X367",
+    "syn_add_X766_X367",
+    "syn_add_X766_X614",
+    "syn_add_X766_X752",
+    "syn_add_X766_X759",
+    "syn_add_X772_X752",
+    "syn_add_X777_X752",
+    "syn_mul_X766_X367",
+    "syn_mul_X766_X752",
+    "syn_mul_X766_X759",
+    "syn_mul_X777_X752",
+    "syn_sub_X547_X752",
+    "syn_sub_X547_X759",
+    "syn_sub_X602_X752",
+    "syn_sub_X614_X752",
+    "syn_sub_X752_X367",
+    "syn_sub_X752_X604",
+    "syn_sub_X759_X604",
+    "syn_sub_X772_X752",
+    "syn_sub_X777_X752",
+    "syn_sub_X777_X759",
+    "trade_imbalance",
+    "trade_total_qty",
+    "volume",
+    "volume_per_book_qty",
+    "volume_per_trade_qty"
+  ],
+  "feature_count": 98,
+  "generated_at": "2026-07-04T00:31:37"
+}
