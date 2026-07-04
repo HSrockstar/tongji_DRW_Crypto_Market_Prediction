@@ -20,7 +20,7 @@ SRC_DIR = Path(__file__).resolve().parents[1]
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from data_preprocessing.second_place_features import (  # noqa: E402
+from data_preprocessing.new_solution_features import (  # noqa: E402
     DEFAULT_ASSET_DIR,
     DEFAULT_CACHE_DIR,
     DEFAULT_RAW_DATA_DIR,
@@ -33,7 +33,7 @@ from data_preprocessing.second_place_features import (  # noqa: E402
     TIME_FOLDS,
     TRAIN_CACHE_NAME,
     FileLogger,
-    add_second_place_features,
+    add_new_solution_features,
     ensure_features_exist,
     filter_training_rows_by_time,
     finite_frame_values,
@@ -50,8 +50,8 @@ from prediction_task.metrics import mae, pearson_corr, rmse  # noqa: E402
 
 warnings.filterwarnings("ignore")
 
-DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "outputs" / "experiments" / "second_place"
-DEFAULT_MODEL_DIR = PROJECT_ROOT / "models" / "second_place"
+DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "outputs" / "experiments" / "new_solution"
+DEFAULT_MODEL_DIR = PROJECT_ROOT / "models" / "new_solution"
 DEFAULT_SUBMISSION_DIR = PROJECT_ROOT / "outputs" / "submissions"
 MODEL_NAMES = ["linear", "ridge", "lightgbm"]
 CV_MODEL_NAMES = ["ridge", "lightgbm"]
@@ -102,7 +102,7 @@ def make_model(model_name: str, n_estimators: int | None = None) -> Any:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="运行第 2 名迁移版线性/Ridge/LightGBM 方法")
+    parser = argparse.ArgumentParser(description="运行新方案迁移版线性/Ridge/LightGBM 方法")
     parser.add_argument("--raw-data-dir", default=str(DEFAULT_RAW_DATA_DIR), help="原始数据目录")
     parser.add_argument("--asset-dir", default=str(DEFAULT_ASSET_DIR), help="迁移版资产目录")
     parser.add_argument("--cache-dir", default=str(DEFAULT_CACHE_DIR), help="450 特征缓存目录")
@@ -337,7 +337,7 @@ def write_submission(
     if len(submission) != len(prediction):
         raise ValueError(f"提交模板行数与预测行数不一致: {len(submission)} != {len(prediction)}")
     submission["prediction"] = prediction
-    submission_path = submission_dir / f"submission_second_place_{model_name}.csv"
+    submission_path = submission_dir / f"submission_new_solution_{model_name}.csv"
     submission.to_csv(submission_path, index=False)
     return submission_path, {
         "prediction_mean": float(prediction.mean()),
@@ -383,7 +383,7 @@ def generate_cache_model_submission(
     if smoke_test:
         sample_submission = sample_submission.head(len(prediction)).copy()
     submission_path, prediction_summary = write_submission(model_name, prediction, sample_submission, submission_dir)
-    model_path = model_dir / f"second_place_{model_name}.joblib"
+    model_path = model_dir / f"new_solution_{model_name}.joblib"
     joblib.dump(model, model_path)
     logger.write(f"{model_name} submission 已保存: {submission_path}")
     return {
@@ -420,8 +420,8 @@ def generate_linear_submission(
     train_df = reduce_memory_usage(train_df, logger.write, "linear_train")
     test_df = reduce_memory_usage(test_df, logger.write, "linear_test")
     logger.write("线性方案执行公开市场特征工程")
-    train_df = add_second_place_features(train_df, spec)
-    test_df = add_second_place_features(test_df, spec)
+    train_df = add_new_solution_features(train_df, spec)
+    test_df = add_new_solution_features(test_df, spec)
     logger.write("线性方案执行时间过滤")
     train_clean = filter_training_rows_by_time(train_df, asset_dir)
     if train_clean.empty:
@@ -443,7 +443,7 @@ def generate_linear_submission(
         raise ValueError("线性方案预测结果包含 NaN/Inf")
 
     submission_path, prediction_summary = write_submission("linear", prediction, sample_submission, submission_dir)
-    model_path = model_dir / "second_place_linear.joblib"
+    model_path = model_dir / "new_solution_linear.joblib"
     joblib.dump(model, model_path)
     logger.write(f"linear submission 已保存: {submission_path}")
     feature_info = {
@@ -562,7 +562,7 @@ def main() -> int:
         "submission_summaries": submission_summaries,
     }
     write_json(run_summary, output_dir / ("run_summary_smoke.json" if args.smoke_test else "run_summary.json"))
-    logger.write(f"第 2 名迁移版运行完成，总耗时 {run_summary['elapsed_seconds']:.1f} 秒")
+    logger.write(f"新方案迁移版运行完成，总耗时 {run_summary['elapsed_seconds']:.1f} 秒")
     return 0
 
 

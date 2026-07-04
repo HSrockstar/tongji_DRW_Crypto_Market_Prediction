@@ -1,5 +1,5 @@
 {
-  "description": "第 2 名方案迁移验收参考结果；来自迁移前独立目录。",
+  "description": "新方案迁移验收参考结果；来自迁移前独立目录。",
   "hashes": {
     "cache": {
       "train_filtered_450.parquet": "24b628009dd0cc46a4915955ae87c2c5fb925295deb08b6cc5e81ebdba0c0d29",

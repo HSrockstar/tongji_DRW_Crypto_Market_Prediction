@@ -35,13 +35,13 @@ outputs/submissions/submission_ensemble*.csv
 outputs/submissions/submission_overnight*.csv
 outputs/submissions/submission_step4*.csv
 outputs/submissions/submission_selected*.csv
-data/processed/second_place/*.parquet
-data/processed/second_place/*.txt
-data/processed/second_place/data_manifest.json
-data/processed/second_place/feature_list.json
-models/second_place/*.joblib
-outputs/experiments/second_place/
-outputs/submissions/submission_second_place*.csv
+data/processed/new_solution/*.parquet
+data/processed/new_solution/*.txt
+data/processed/new_solution/data_manifest.json
+data/processed/new_solution/feature_list.json
+models/new_solution/*.joblib
+outputs/experiments/new_solution/
+outputs/submissions/submission_new_solution*.csv
 
 # 常见本地系统文件
 .DS_Store

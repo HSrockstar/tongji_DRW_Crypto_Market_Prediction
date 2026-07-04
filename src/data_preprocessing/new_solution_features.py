@@ -18,9 +18,9 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
 DEFAULT_ASSET_DIR = PROJECT_ROOT / "data" / "external"
-DEFAULT_CACHE_DIR = PROJECT_ROOT / "data" / "processed" / "second_place"
-FEATURE_SPEC_NAME = "second_place_feature_spec.json"
-TIME_FILTER_NAME = "second_place_time_filter.csv"
+DEFAULT_CACHE_DIR = PROJECT_ROOT / "data" / "processed" / "new_solution"
+FEATURE_SPEC_NAME = "new_solution_feature_spec.json"
+TIME_FILTER_NAME = "new_solution_time_filter.csv"
 TRAIN_CACHE_NAME = "train_filtered_450.parquet"
 TEST_CACHE_NAME = "test_450.parquet"
 FEATURE_LIST_NAME = "feature_list.json"
@@ -274,7 +274,7 @@ def add_aggregations(
     return df
 
 
-def add_second_place_features(df: pd.DataFrame, spec: dict[str, Any]) -> pd.DataFrame:
+def add_new_solution_features(df: pd.DataFrame, spec: dict[str, Any]) -> pd.DataFrame:
     df = add_microstructure_features(df)
     return add_aggregations(
         df,

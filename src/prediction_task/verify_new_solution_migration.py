@@ -12,7 +12,7 @@ SRC_DIR = Path(__file__).resolve().parents[1]
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from data_preprocessing.second_place_features import (  # noqa: E402
+from data_preprocessing.new_solution_features import (  # noqa: E402
     DEFAULT_ASSET_DIR,
     DEFAULT_CACHE_DIR,
     PROJECT_ROOT,
@@ -24,13 +24,13 @@ from data_preprocessing.second_place_features import (  # noqa: E402
 )
 
 
-DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "outputs" / "experiments" / "second_place"
+DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "outputs" / "experiments" / "new_solution"
 DEFAULT_SUBMISSION_DIR = PROJECT_ROOT / "outputs" / "submissions"
-DEFAULT_REFERENCE_MANIFEST = DEFAULT_ASSET_DIR / "second_place_reference_manifest.json"
+DEFAULT_REFERENCE_MANIFEST = DEFAULT_ASSET_DIR / "new_solution_reference_manifest.json"
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="验证第 2 名方案迁移结果与独立目录参考结果一致")
+    parser = argparse.ArgumentParser(description="验证新方案迁移结果与独立目录参考结果一致")
     parser.add_argument("--reference-manifest", default=str(DEFAULT_REFERENCE_MANIFEST), help="参考结果清单")
     parser.add_argument("--cache-dir", default=str(DEFAULT_CACHE_DIR), help="主项目缓存目录")
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR), help="主项目实验输出目录")
@@ -113,9 +113,9 @@ def main() -> int:
             "submissions",
             hashes["submissions"],
             {
-                "linear": submission_dir / "submission_second_place_linear.csv",
-                "ridge": submission_dir / "submission_second_place_ridge.csv",
-                "lightgbm": submission_dir / "submission_second_place_lightgbm.csv",
+                "linear": submission_dir / "submission_new_solution_linear.csv",
+                "ridge": submission_dir / "submission_new_solution_ridge.csv",
+                "lightgbm": submission_dir / "submission_new_solution_lightgbm.csv",
             },
         )
     )

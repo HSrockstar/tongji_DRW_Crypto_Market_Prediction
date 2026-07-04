@@ -1,8 +1,8 @@
-﻿param(
+param(
     [string]$Python = "E:\miniconda\envs\drw\python.exe",
     [string]$Root = ".",
-    [switch]$RebuildSecondPlaceCache,
-    [switch]$SkipSecondPlaceCv
+    [switch]$RebuildNewSolutionCache,
+    [switch]$SkipNewSolutionCv
 )
 
 $ErrorActionPreference = "Stop"
@@ -44,8 +44,8 @@ $requiredFiles = @(
     "models\official_lgbm.txt",
     "models\official_lgbm_features.json",
     "outputs\experiments\lgbm_best_params.json",
-    "data\external\second_place_feature_spec.json",
-    "data\external\second_place_time_filter.csv"
+    "data\external\new_solution_feature_spec.json",
+    "data\external\new_solution_time_filter.csv"
 )
 
 foreach ($file in $requiredFiles) {
@@ -84,30 +84,30 @@ Invoke-Step "Step4 时序扩展 LightGBM submission" @(
     "--steps", "4"
 )
 
-$secondPlaceCacheArgs = @(
-    "src\data_preprocessing\build_second_place_dataset.py",
+$NewSolutionCacheArgs = @(
+    "src\data_preprocessing\build_new_solution_dataset.py",
     "--raw-data-dir", "data\raw",
     "--asset-dir", "data\external",
-    "--cache-dir", "data\processed\second_place"
+    "--cache-dir", "data\processed\new_solution"
 )
-if ($RebuildSecondPlaceCache) {
-    $secondPlaceCacheArgs += "--force"
+if ($RebuildNewSolutionCache) {
+    $NewSolutionCacheArgs += "--force"
 }
-Invoke-Step "第二名迁移版 450 特征缓存" $secondPlaceCacheArgs
+Invoke-Step "新方案迁移版 450 特征缓存" $NewSolutionCacheArgs
 
-$secondPlaceTrainArgs = @(
-    "src\prediction_task\train_second_place.py",
+$NewSolutionTrainArgs = @(
+    "src\prediction_task\train_new_solution.py",
     "--models", "linear,ridge,lightgbm",
-    "--cache-dir", "data\processed\second_place",
-    "--output-dir", "outputs\experiments\second_place",
-    "--model-dir", "models\second_place",
+    "--cache-dir", "data\processed\new_solution",
+    "--output-dir", "outputs\experiments\new_solution",
+    "--model-dir", "models\new_solution",
     "--submission-dir", "outputs\submissions",
     "--make-submissions"
 )
-if ($SkipSecondPlaceCv) {
-    $secondPlaceTrainArgs += "--no-cv"
+if ($SkipNewSolutionCv) {
+    $NewSolutionTrainArgs += "--no-cv"
 }
-Invoke-Step "第二名迁移版 linear/ridge/lightgbm submissions" $secondPlaceTrainArgs
+Invoke-Step "新方案迁移版 linear/ridge/lightgbm submissions" $NewSolutionTrainArgs
 
 Write-Host ""
 Write-Host "全部 submission 已生成："
@@ -116,9 +116,9 @@ $expectedSubmissions = @(
     "outputs\submissions\submission_official_lightgbm_tuned.csv",
     "outputs\submissions\submission_overnight_step3_tree_blend.csv",
     "outputs\submissions\submission_overnight_step4_temporal.csv",
-    "outputs\submissions\submission_second_place_linear.csv",
-    "outputs\submissions\submission_second_place_ridge.csv",
-    "outputs\submissions\submission_second_place_lightgbm.csv"
+    "outputs\submissions\submission_new_solution_linear.csv",
+    "outputs\submissions\submission_new_solution_ridge.csv",
+    "outputs\submissions\submission_new_solution_lightgbm.csv"
 )
 
 foreach ($submission in $expectedSubmissions) {

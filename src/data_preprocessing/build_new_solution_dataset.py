@@ -16,7 +16,7 @@ SRC_DIR = Path(__file__).resolve().parents[1]
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from data_preprocessing.second_place_features import (  # noqa: E402
+from data_preprocessing.new_solution_features import (  # noqa: E402
     DEFAULT_ASSET_DIR,
     DEFAULT_CACHE_DIR,
     DEFAULT_RAW_DATA_DIR,
@@ -28,7 +28,7 @@ from data_preprocessing.second_place_features import (  # noqa: E402
     TEST_CACHE_NAME,
     TRAIN_CACHE_NAME,
     FileLogger,
-    add_second_place_features,
+    add_new_solution_features,
     cast_feature_frame,
     ensure_features_exist,
     filter_training_rows_by_time,
@@ -44,7 +44,7 @@ from data_preprocessing.second_place_features import (  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="构建第 2 名迁移版 450 特征缓存")
+    parser = argparse.ArgumentParser(description="构建新方案迁移版 450 特征缓存")
     parser.add_argument("--raw-data-dir", default=str(DEFAULT_RAW_DATA_DIR), help="原始数据目录")
     parser.add_argument("--asset-dir", default=str(DEFAULT_ASSET_DIR), help="迁移版资产目录")
     parser.add_argument("--cache-dir", default=str(DEFAULT_CACHE_DIR), help="缓存输出目录")
@@ -88,8 +88,8 @@ def build_train_cache(
     train_df = read_parquet_frame(train_path, sample_rows)
     train_df = reduce_memory_usage(train_df, logger.write, "train")
 
-    logger.write("执行第 2 名迁移版公开市场特征工程")
-    train_df = add_second_place_features(train_df, spec)
+    logger.write("执行新方案迁移版公开市场特征工程")
+    train_df = add_new_solution_features(train_df, spec)
 
     logger.write("按迁移版时间过滤 CSV 筛选训练样本")
     train_clean = filter_training_rows_by_time(train_df, asset_dir)
@@ -133,7 +133,7 @@ def build_test_cache_full(
         logger.write(f"处理 test batch {batch_index}: rows={batch.num_rows}")
         test_df = batch.to_pandas()
         test_df = reduce_memory_usage(test_df, logger.write, f"test_batch_{batch_index}")
-        test_df = add_second_place_features(test_df, spec)
+        test_df = add_new_solution_features(test_df, spec)
         ensure_features_exist(test_df, features, f"测试缓存 batch {batch_index}")
         finite_frame_values(test_df, features, f"测试缓存 batch {batch_index}")
         test_cache = test_df[features].copy()
@@ -164,7 +164,7 @@ def build_test_cache_sample(
     logger.write("读取 test.parquet smoke 样本")
     test_df = read_parquet_frame(test_path, sample_rows)
     test_df = reduce_memory_usage(test_df, logger.write, "test")
-    test_df = add_second_place_features(test_df, spec)
+    test_df = add_new_solution_features(test_df, spec)
     ensure_features_exist(test_df, features, "测试缓存")
     finite_frame_values(test_df, features, "测试缓存")
     test_cache = cast_feature_frame(test_df[features].copy(), features)

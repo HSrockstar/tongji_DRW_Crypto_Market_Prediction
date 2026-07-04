@@ -1,6 +1,6 @@
 {
-  "name": "drw_second_place_feature_spec",
-  "description": "第 2 名方案迁移版所需的特征规格；仅保存列表和聚合窗口，不包含 Kaggle 原始代码。",
+  "name": "drw_new_solution_feature_spec",
+  "description": "新方案迁移版所需的特征规格；仅保存列表和聚合窗口，不包含 Kaggle 原始代码。",
   "aggregation_windows": [
     5,
     10,
