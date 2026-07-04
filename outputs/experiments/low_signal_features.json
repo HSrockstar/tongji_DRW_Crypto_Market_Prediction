@@ -1,0 +1,28 @@
+{
+  "target_corr_threshold": 0.0001,
+  "kept_features": [
+    "X624",
+    "X120",
+    "X365",
+    "X367",
+    "X498",
+    "X545",
+    "X546",
+    "X547",
+    "X549",
+    "X519",
+    "X602",
+    "X603",
+    "X604",
+    "X614",
+    "X777",
+    "X752",
+    "X759",
+    "X766",
+    "X770",
+    "X772"
+  ],
+  "dropped_features": [],
+  "kept_count": 20,
+  "dropped_count": 0
+}

@@ -1,0 +1,2 @@
+model,sample_rows,train_rows,valid_rows,valid_fraction,gap_rows,metric_for_early_stop,learning_rate,num_leaves,min_data_in_leaf,feature_fraction,bagging_fraction,lambda_l1,lambda_l2,max_depth,min_gain_to_split,best_iteration,generated_at,pearson,rmse,mae
+lightgbm_selected,525886,420709,105177,0.2,0,pearson,0.01,31,200,0.9,0.9,0.0,10.0,-1,0.0,8,2026-07-03T17:03:49,0.052166971408424044,1.0399322643713012,0.6984157518858045

@@ -1,0 +1,26 @@
+{
+  "top_k_importance": 20,
+  "min_stable_folds": 3,
+  "stable_anonymous_features": [
+    "X120",
+    "X365",
+    "X367",
+    "X498",
+    "X545",
+    "X546",
+    "X547",
+    "X549",
+    "X602",
+    "X603",
+    "X604",
+    "X614",
+    "X624",
+    "X752",
+    "X759",
+    "X766",
+    "X770",
+    "X772",
+    "X777"
+  ],
+  "stable_anonymous_count": 19
+}
