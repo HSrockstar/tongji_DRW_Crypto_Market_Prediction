@@ -1,0 +1,10 @@
+[2026-07-04T18:31:16] 夜间优化开始 steps=[3] baseline=0.102359
+[2026-07-04T18:31:24] Step3: LGBM + CatBoost + XGBoost 集成开始
+[2026-07-04T18:36:06] Step3 完成 holdout pearson=0.108832
+[2026-07-04T18:36:06] 新的最优候选已复制到 E:\DRW\outputs\submissions\submission_overnight_best.csv (pearson=0.108832)
+[2026-07-04T18:36:06] 汇总已保存: E:\DRW\outputs\experiments\overnight\optimization_summary.csv
+[2026-07-04T18:36:25] 夜间优化开始 steps=[4] baseline=0.102359
+[2026-07-04T18:36:25] Step4: 时序扩展特征 LGBM 开始
+[2026-07-04T18:39:02] Step4 完成 holdout pearson=0.096280
+[2026-07-04T18:39:03] 暂无超过 baseline 的新结果；主提交 submission.csv 保持不变
+[2026-07-04T18:39:03] 汇总已保存: E:\DRW\outputs\experiments\overnight\optimization_summary.csv

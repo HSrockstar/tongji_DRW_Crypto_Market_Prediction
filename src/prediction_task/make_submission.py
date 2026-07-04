@@ -15,7 +15,7 @@ SRC_DIR = Path(__file__).resolve().parents[1]
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from data_preprocessing.build_features import add_basic_market_features, add_synthesized_features
+from data_preprocessing.build_features import add_basic_market_features
 from data_preprocessing.preprocess import (  # noqa: E402
     DEFAULT_ROOT,
     ensure_dir,
@@ -28,6 +28,16 @@ from data_preprocessing.preprocess import (  # noqa: E402
 
 
 def load_lgbm_model(model_path: Path) -> lgb.Booster:
+    if model_path.suffix.lower() == ".txt":
+        model_string = model_path.read_text(encoding="utf-8")
+        try:
+            return lgb.Booster(model_str=model_string)
+        except lgb.basic.LightGBMError:
+            # 部分 LightGBM 版本在 tree_sizes 快速加载路径上会误解析，去掉后可走顺序解析。
+            cleaned_model_string = "\n".join(
+                line for line in model_string.splitlines() if not line.startswith("tree_sizes=")
+            )
+            return lgb.Booster(model_str=cleaned_model_string)
     try:
         return lgb.Booster(model_file=str(model_path))
     except lgb.basic.LightGBMError:
@@ -48,8 +58,6 @@ def infer_feature_path(model_path: Path) -> Path:
         return model_path.with_name("official_ridge_selected_features.json")
     if model_path.name == "selected_ridge.pkl":
         return model_path.with_name("selected_ridge_features.json")
-    if model_path.name == "official_lasso.pkl":
-        return model_path.with_name("official_lasso_features.json")
     return model_path.with_suffix("").with_name(f"{model_path.stem}_features.json")
 
 
@@ -58,7 +66,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--root", default=str(DEFAULT_ROOT), help="项目根目录")
     parser.add_argument("--model", required=True, help="模型文件路径")
     parser.add_argument("--feature-file", default=None, help="特征列 JSON，默认按模型名推断")
-    parser.add_argument("--model-type", choices=["auto", "ridge", "lasso", "lightgbm"], default="auto")
+    parser.add_argument("--model-type", choices=["auto", "ridge", "lightgbm"], default="auto")
     parser.add_argument("--smoke-rows", type=int, default=None, help="只预测前 N 行，生成 smoke submission")
     parser.add_argument("--output", default=None, help="提交文件输出路径")
     return parser.parse_args()
@@ -76,7 +84,6 @@ def main() -> int:
 
     feature_payload = load_json(feature_path)
     feature_cols = feature_payload["feature_columns"]
-    combo_defs = feature_payload.get("combo_defs", [])
     test_data = load_parquet_frame(
         root,
         "test.parquet",
@@ -84,8 +91,6 @@ def main() -> int:
         include_label=False,
     )
     test_data = add_basic_market_features(test_data)
-    if combo_defs:
-        test_data = add_synthesized_features(test_data, combo_defs)
     validate_no_missing_or_infinite(test_data, feature_cols, context="提交预测数据")
     X_test = test_data[feature_cols]
 
@@ -93,8 +98,6 @@ def main() -> int:
     if model_type == "auto":
         if model_path.suffix.lower() == ".txt":
             model_type = "lightgbm"
-        elif model_path.name == "official_lasso.pkl":
-            model_type = "lasso"
         else:
             model_type = "ridge"
 

@@ -14,7 +14,7 @@ SRC_DIR = Path(__file__).resolve().parents[1]
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from data_preprocessing.build_features import add_basic_market_features, add_synthesized_features
+from data_preprocessing.build_features import add_basic_market_features
 from data_preprocessing.preprocess import (  # noqa: E402
     DEFAULT_ROOT,
     TARGET_COL,
@@ -65,31 +65,35 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-gain-to-split", type=float, default=0.0)
     parser.add_argument("--num-threads", type=int, default=0)
     parser.add_argument("--log-period", type=int, default=100)
+    parser.add_argument("--output-dir", default=None, help="实验输出目录，默认 outputs/experiments")
+    parser.add_argument("--model-dir", default=None, help="模型输出目录，默认 models")
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
     root = Path(args.root).expanduser().resolve()
-    output_dir = ensure_dir(root / "outputs" / "experiments")
-    model_dir = ensure_dir(root / "models")
+    output_dir = Path(args.output_dir) if args.output_dir else root / "outputs" / "experiments"
+    model_dir = Path(args.model_dir) if args.model_dir else root / "models"
+    if not output_dir.is_absolute():
+        output_dir = root / output_dir
+    if not model_dir.is_absolute():
+        model_dir = root / model_dir
+    output_dir = ensure_dir(output_dir)
+    model_dir = ensure_dir(model_dir)
 
     data = load_parquet_frame(root, "train.parquet", sample_rows=args.sample_rows, include_label=True)
     data = add_basic_market_features(data)
-    combo_defs: list[dict[str, str]] = []
     if args.feature_file:
         feature_path_arg = Path(args.feature_file)
         if not feature_path_arg.is_absolute():
             feature_path_arg = root / feature_path_arg
         feature_payload = load_json(feature_path_arg)
         feature_cols = feature_payload["feature_columns"]
-        combo_defs = feature_payload.get("combo_defs", [])
         model_tag = feature_path_arg.stem.replace("_features", "")
     else:
         feature_cols = get_feature_columns(data.columns)
         model_tag = None
-    if combo_defs:
-        data = add_synthesized_features(data, combo_defs)
     validate_no_missing_or_infinite(data, feature_cols + [TARGET_COL], context="LightGBM 训练数据")
 
     train_idx, valid_idx = time_order_split(

@@ -1,7 +1,0 @@
-stage,model,holdout_pearson,vs_handoff_lgbm_0.077,vs_handoff_ridge_0.092,submission_file,notes
-handoff,ridge,0.091906,better,marginally_below,,
-handoff,lightgbm,0.076856,baseline,worse,,
-phase1a_ensemble_default_lgbm,blend_w0.5,0.096593,better,better,outputs/submissions/submission_ensemble.csv,default LGBM params
-phase1b_tuned_lgbm,lightgbm,0.102359,much_better,better,outputs/submissions/submission.csv,recommended primary submit
-phase1_tuned_ensemble,blend_w0.5,0.099524,better,better,outputs/submissions/submission_ensemble.csv,
-phase2_combo_lgbm,synthesized_98feat,0.091771,better,marginally_below,outputs/experiments/synthesized_lgbm.txt,champion line combo features

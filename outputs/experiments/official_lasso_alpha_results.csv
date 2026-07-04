@@ -1,3 +1,0 @@
-model,alpha,sample_rows,train_rows,valid_rows,valid_fraction,gap_rows,max_iter,tol,n_iter,nonzero_coef_count,pearson,rmse,mae,is_best
-lasso,1e-05,5000,4000,1000,0.2,0,1000,0.0001,1000,783,0.1584432175594569,7.892406566770671,6.312977038090452,True
-lasso,0.0001,5000,4000,1000,0.2,0,1000,0.0001,1000,601,0.1521852384697309,8.841674923693905,7.024008973819538,False

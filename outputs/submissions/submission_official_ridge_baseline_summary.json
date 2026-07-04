@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-07-04T18:30:37",
+  "model": "E:\\DRW\\models\\official_ridge.pkl",
+  "model_type": "ridge",
+  "feature_file": "E:\\DRW\\models\\official_ridge_features.json",
+  "output": "E:\\DRW\\outputs\\submissions\\submission_official_ridge_baseline.csv",
+  "rows": 538150,
+  "smoke_rows": null,
+  "prediction_mean": 0.19406542023295828,
+  "prediction_std": 0.8327083459942516,
+  "prediction_min": -6.561245918273926,
+  "prediction_max": 15.765130996704102,
+  "has_nan_or_inf": false
+}

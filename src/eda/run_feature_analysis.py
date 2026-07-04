@@ -319,7 +319,7 @@ def build_recommendations(summary: dict) -> list[str]:
             f"Holdout 段 label 波动与训练段比值约 {holdout_ratio:.3f}，后续调参应结合 Purged CV，不宜只信 Holdout。"
         )
     recs.append("公开市场/派生特征单独特征相关性通常弱于 anonymous X，新特征应优先基于 Top importance X 或 market 时序。")
-    recs.append("后续优化顺序建议: 多 seed LGBM 平均 → 局部调参 → CatBoost/XGB 异质集成；避免再跑 medoid 硬删。")
+    recs.append("后续优化顺序建议: 调参 LGBM → CatBoost/XGB 异质集成 → 时序扩展特征；避免再跑 medoid 硬删。")
     return recs
 
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -11,7 +10,7 @@ from typing import Any
 import lightgbm as lgb
 import numpy as np
 import pandas as pd
-from catboost import CatBoostRegressor, Pool
+from catboost import CatBoostRegressor
 from xgboost import XGBRegressor
 
 SRC_DIR = Path(__file__).resolve().parents[1]
@@ -31,25 +30,14 @@ from data_preprocessing.preprocess import (
     validate_no_missing_or_infinite,
 )
 from prediction_task.metrics import evaluate_regression
-from prediction_task.run_time_cv_experiments import fit_predict_lgbm, lgb_pearson_eval
-from prediction_task.splits import purged_group_time_series_splits, time_order_split
+from prediction_task.run_time_cv_experiments import lgb_pearson_eval
+from prediction_task.splits import time_order_split
 from prediction_task.train_lgbm import save_lgbm_model
 
 BASELINE_PEARSON = 0.10235862829968674
 BASELINE_NAME = "phase1b_tuned_lgbm"
-MULTISEED_LIST = [42, 43, 44, 45, 46]
 TOP_X_FOR_LAG = ["X466", "X33", "X752", "X272", "X758"]
 MARKET_TEMPORAL_COLS = ["volume", "book_imbalance", "trade_imbalance"]
-LOCAL_PARAM_GRID: list[dict[str, float | int]] = [
-    {"num_leaves": 31, "min_data_in_leaf": 400, "lambda_l1": 0.0, "lambda_l2": 40.0, "feature_fraction": 0.7},
-    {"num_leaves": 31, "min_data_in_leaf": 500, "lambda_l1": 0.0, "lambda_l2": 50.0, "feature_fraction": 0.7},
-    {"num_leaves": 31, "min_data_in_leaf": 600, "lambda_l1": 0.0, "lambda_l2": 50.0, "feature_fraction": 0.7},
-    {"num_leaves": 31, "min_data_in_leaf": 500, "lambda_l1": 0.0, "lambda_l2": 70.0, "feature_fraction": 0.7},
-    {"num_leaves": 31, "min_data_in_leaf": 500, "lambda_l1": 0.0, "lambda_l2": 50.0, "feature_fraction": 0.8},
-    {"num_leaves": 15, "min_data_in_leaf": 500, "lambda_l1": 0.0, "lambda_l2": 50.0, "feature_fraction": 0.7},
-    {"num_leaves": 31, "min_data_in_leaf": 500, "lambda_l1": 1.0, "lambda_l2": 50.0, "feature_fraction": 0.6},
-    {"num_leaves": 31, "min_data_in_leaf": 800, "lambda_l1": 0.0, "lambda_l2": 100.0, "feature_fraction": 0.7},
-]
 
 
 @dataclass
@@ -82,7 +70,13 @@ def load_best_lgbm_params(root: Path) -> dict[str, float | int]:
     return payload["params"]
 
 
-def make_lgbm_args(root: Path, params: dict[str, float | int], seed: int = 42) -> argparse.Namespace:
+def make_lgbm_args(
+    root: Path,
+    params: dict[str, float | int],
+    seed: int = 42,
+    *,
+    smoke_test: bool = False,
+) -> argparse.Namespace:
     merged = {
         "root": str(root),
         "sample_rows": None,
@@ -90,14 +84,14 @@ def make_lgbm_args(root: Path, params: dict[str, float | int], seed: int = 42) -
         "gap_rows": 0,
         "feature_file": None,
         "learning_rate": 0.01,
-        "num_boost_round": 3000,
-        "early_stopping_rounds": 200,
+        "num_boost_round": 20 if smoke_test else 3000,
+        "early_stopping_rounds": 5 if smoke_test else 200,
         "metric_for_early_stop": "pearson",
         "bagging_fraction": 0.9,
         "max_depth": -1,
         "min_gain_to_split": 0.0,
         "num_threads": 0,
-        "log_period": 200,
+        "log_period": 10 if smoke_test else 200,
         "seed": seed,
         **params,
     }
@@ -119,8 +113,8 @@ def add_temporal_features(data: pd.DataFrame) -> pd.DataFrame:
     return result
 
 
-def prepare_dataset(root: Path, *, temporal: bool = False) -> tuple[pd.DataFrame, list[str]]:
-    data = load_parquet_frame(root, "train.parquet", include_label=True)
+def prepare_dataset(root: Path, *, temporal: bool = False, sample_rows: int | None = None) -> tuple[pd.DataFrame, list[str]]:
+    data = load_parquet_frame(root, "train.parquet", sample_rows=sample_rows, include_label=True)
     data = add_temporal_features(data) if temporal else add_basic_market_features(data)
     feature_cols = get_feature_columns(data.columns)
     validate_no_missing_or_infinite(data, feature_cols + [TARGET_COL], context="overnight optimization")
@@ -192,20 +186,22 @@ def train_catboost_holdout(
     train_idx: np.ndarray,
     valid_idx: np.ndarray,
     seed: int = 42,
+    *,
+    smoke_test: bool = False,
 ) -> tuple[CatBoostRegressor, np.ndarray, dict[str, float]]:
     model = CatBoostRegressor(
-        iterations=3000,
+        iterations=20 if smoke_test else 3000,
         learning_rate=0.01,
         depth=6,
         l2_leaf_reg=50.0,
         random_strength=1.0,
         rsm=0.7,
         min_data_in_leaf=500,
-        early_stopping_rounds=200,
+        early_stopping_rounds=5 if smoke_test else 200,
         loss_function="RMSE",
         eval_metric="RMSE",
         random_seed=seed,
-        verbose=200,
+        verbose=10 if smoke_test else 200,
     )
     X_train = data.iloc[train_idx][feature_cols]
     y_train = data.iloc[train_idx][TARGET_COL]
@@ -223,6 +219,8 @@ def train_xgb_holdout(
     train_idx: np.ndarray,
     valid_idx: np.ndarray,
     seed: int = 42,
+    *,
+    smoke_test: bool = False,
 ) -> tuple[np.ndarray, dict[str, float], XGBRegressor]:
     model = XGBRegressor(
         objective="reg:squarederror",
@@ -232,30 +230,39 @@ def train_xgb_holdout(
         subsample=0.9,
         colsample_bytree=0.7,
         reg_lambda=50.0,
-        n_estimators=3000,
-        early_stopping_rounds=200,
+        n_estimators=20 if smoke_test else 3000,
+        early_stopping_rounds=5 if smoke_test else 200,
         random_state=seed,
         n_jobs=-1,
-        verbosity=1,
+        verbosity=0 if smoke_test else 1,
     )
     X_train = data.iloc[train_idx][feature_cols]
     y_train = data.iloc[train_idx][TARGET_COL]
     X_valid = data.iloc[valid_idx][feature_cols]
     y_valid = data.iloc[valid_idx][TARGET_COL]
-    model.fit(X_train, y_train, eval_set=[(X_valid, y_valid)], verbose=200)
+    model.fit(X_train, y_train, eval_set=[(X_valid, y_valid)], verbose=False if smoke_test else 200)
     valid_pred = model.predict(X_valid).astype(np.float64)
     metrics = evaluate_regression(y_valid.to_numpy(dtype=np.float64), valid_pred)
     return valid_pred, metrics, model
 
 
-def save_submission(root: Path, predictions: np.ndarray, file_name: str) -> Path:
-    submission_dir = ensure_dir(root / "outputs" / "submissions")
+def save_submission(root: Path, predictions: np.ndarray, file_name: str, submission_dir: Path | None = None) -> Path:
+    submission_dir = ensure_dir(submission_dir or (root / "outputs" / "submissions"))
     template = pd.read_csv(raw_path(root, "sample_submission.csv"))
+    if len(template) != len(predictions):
+        template = template.head(len(predictions)).copy()
     output = template.copy()
     output["prediction"] = np.asarray(predictions, dtype=np.float64)
     output_path = submission_dir / file_name
     output.to_csv(output_path, index=False)
     return output_path
+
+
+def display_path(root: Path, path: Path) -> str:
+    try:
+        return str(path.relative_to(root))
+    except ValueError:
+        return str(path)
 
 
 def record_to_row(record: ExperimentRecord) -> dict[str, Any]:
@@ -291,127 +298,6 @@ def finalize_records(records: list[ExperimentRecord]) -> pd.DataFrame:
     frame = pd.DataFrame([record_to_row(item) for item in all_records])
     frame["rank_by_pearson"] = frame["holdout_pearson"].rank(ascending=False, method="min").astype(int)
     return frame.sort_values("holdout_pearson", ascending=False).reset_index(drop=True)
-
-
-def run_step1_multiseed(
-    root: Path,
-    output_dir: Path,
-    data: pd.DataFrame,
-    feature_cols: list[str],
-    params: dict[str, float | int],
-    log_path: Path,
-) -> tuple[ExperimentRecord, np.ndarray]:
-    log_message(log_path, "Step1: 多 seed LGBM 平均开始")
-    train_idx, valid_idx = time_order_split(len(data), valid_fraction=0.2, gap_rows=0)
-    valid_preds = []
-    test_preds = []
-    test_data = load_parquet_frame(root, "test.parquet", include_label=False)
-    test_data = add_basic_market_features(test_data)
-
-    for seed in MULTISEED_LIST:
-        log_message(log_path, f"Step1: 训练 seed={seed}")
-        args = make_lgbm_args(root, params, seed=seed)
-        model, valid_pred, metrics = train_lgbm_model(data, feature_cols, train_idx, valid_idx, args)
-        assert valid_pred is not None
-        valid_preds.append(valid_pred)
-        model_path = output_dir / f"multiseed_lgbm_seed{seed}.txt"
-        save_lgbm_model(model, model_path)
-        test_pred = model.predict(test_data[feature_cols], num_iteration=model.best_iteration)
-        test_preds.append(test_pred)
-        log_message(log_path, f"Step1 seed={seed} holdout pearson={metrics['pearson']:.6f}")
-
-    blend_valid = np.mean(np.column_stack(valid_preds), axis=1)
-    blend_test = np.mean(np.column_stack(test_preds), axis=1)
-    y_valid = data.iloc[valid_idx][TARGET_COL].to_numpy(dtype=np.float64)
-    metrics = evaluate_regression(y_valid, blend_valid)
-    submission_path = save_submission(root, blend_test, "submission_overnight_step1_multiseed.csv")
-    np.save(output_dir / "step1_valid_pred.npy", blend_valid)
-
-    record = ExperimentRecord(
-        step="step1",
-        experiment="multiseed_lgbm_blend",
-        holdout_pearson=metrics["pearson"],
-        holdout_rmse=metrics["rmse"],
-        holdout_mae=metrics["mae"],
-        vs_baseline=metrics["pearson"] - BASELINE_PEARSON,
-        beats_baseline=metrics["pearson"] > BASELINE_PEARSON,
-        submission_file=str(submission_path.relative_to(root)),
-        notes=f"seeds={MULTISEED_LIST}",
-        extra={"seed_count": len(MULTISEED_LIST)},
-    )
-    log_message(log_path, f"Step1 完成 holdout pearson={metrics['pearson']:.6f}")
-    return record, blend_valid
-
-
-def run_step2_purged_local_tune(
-    root: Path,
-    output_dir: Path,
-    data: pd.DataFrame,
-    feature_cols: list[str],
-    log_path: Path,
-) -> ExperimentRecord:
-    log_message(log_path, "Step2: Purged CV 局部调参开始")
-    splits = purged_group_time_series_splits(len(data), n_groups=6, gap_groups=1)
-    base_args = make_lgbm_args(root, load_best_lgbm_params(root))
-    cv_rows = []
-    for params in LOCAL_PARAM_GRID:
-        fold_args = make_lgbm_args(root, params)
-        pearsons = []
-        for split in splits:
-            valid_idx = split["valid_idx"]
-            y_valid = data.iloc[valid_idx][TARGET_COL].to_numpy(dtype=np.float64)
-            valid_pred, _ = fit_predict_lgbm(data, split, feature_cols, fold_args)
-            pearsons.append(evaluate_regression(y_valid, valid_pred)["pearson"])
-        pearson_array = np.asarray(pearsons, dtype=np.float64)
-        row = {
-            **params,
-            "pearson_mean": float(pearson_array.mean()),
-            "pearson_std": float(pearson_array.std()),
-            "fold_pearsons": pearsons,
-        }
-        cv_rows.append(row)
-        log_message(log_path, f"Step2 params={params} purged_mean={row['pearson_mean']:.6f}")
-
-    cv_frame = pd.DataFrame(cv_rows).sort_values("pearson_mean", ascending=False).reset_index(drop=True)
-    cv_frame.to_csv(output_dir / "step2_purged_local_tune_cv.csv", index=False)
-    best_row = cv_frame.iloc[0]
-    best_params = {
-        "num_leaves": int(best_row["num_leaves"]),
-        "min_data_in_leaf": int(best_row["min_data_in_leaf"]),
-        "lambda_l1": float(best_row["lambda_l1"]),
-        "lambda_l2": float(best_row["lambda_l2"]),
-        "feature_fraction": float(best_row["feature_fraction"]),
-    }
-
-    train_idx, valid_idx = time_order_split(len(data), valid_fraction=0.2, gap_rows=0)
-    args = make_lgbm_args(root, best_params)
-    model, valid_pred, metrics = train_lgbm_model(data, feature_cols, train_idx, valid_idx, args)
-    assert valid_pred is not None
-    save_lgbm_model(model, output_dir / "step2_best_lgbm.txt")
-    save_json({"params": best_params, "purged_cv": cv_frame.iloc[0].to_dict()}, output_dir / "step2_best_params.json")
-
-    test_data = load_parquet_frame(root, "test.parquet", include_label=False)
-    test_data = add_basic_market_features(test_data)
-    test_pred = model.predict(test_data[feature_cols], num_iteration=model.best_iteration)
-    submission_path = save_submission(root, test_pred, "submission_overnight_step2_purged_tune.csv")
-    np.save(output_dir / "step2_valid_pred.npy", valid_pred)
-
-    record = ExperimentRecord(
-        step="step2",
-        experiment="purged_local_tune_lgbm",
-        holdout_pearson=metrics["pearson"],
-        holdout_rmse=metrics["rmse"],
-        holdout_mae=metrics["mae"],
-        purged_cv_mean=float(cv_frame.iloc[0]["pearson_mean"]),
-        purged_cv_std=float(cv_frame.iloc[0]["pearson_std"]),
-        vs_baseline=metrics["pearson"] - BASELINE_PEARSON,
-        beats_baseline=metrics["pearson"] > BASELINE_PEARSON,
-        submission_file=str(submission_path.relative_to(root)),
-        notes="Purged CV 选参后再 Holdout 评估",
-        extra={"best_params": best_params},
-    )
-    log_message(log_path, f"Step2 完成 holdout pearson={metrics['pearson']:.6f}")
-    return record
 
 
 def search_blend_weights(
@@ -451,20 +337,36 @@ def search_blend_weights(
 def run_step3_tree_blend(
     root: Path,
     output_dir: Path,
+    submission_dir: Path,
     data: pd.DataFrame,
     feature_cols: list[str],
     params: dict[str, float | int],
     log_path: Path,
+    *,
+    sample_rows: int | None = None,
+    smoke_test: bool = False,
 ) -> ExperimentRecord:
     log_message(log_path, "Step3: LGBM + CatBoost + XGBoost 集成开始")
     train_idx, valid_idx = time_order_split(len(data), valid_fraction=0.2, gap_rows=0)
     y_valid = data.iloc[valid_idx][TARGET_COL].to_numpy(dtype=np.float64)
 
-    args = make_lgbm_args(root, params)
+    args = make_lgbm_args(root, params, smoke_test=smoke_test)
     lgbm_model, lgbm_valid_pred, lgbm_metrics = train_lgbm_model(data, feature_cols, train_idx, valid_idx, args)
     assert lgbm_valid_pred is not None
-    cat_model, cat_valid_pred, cat_metrics = train_catboost_holdout(data, feature_cols, train_idx, valid_idx)
-    xgb_valid_pred, xgb_metrics, xgb_model = train_xgb_holdout(data, feature_cols, train_idx, valid_idx)
+    cat_model, cat_valid_pred, cat_metrics = train_catboost_holdout(
+        data,
+        feature_cols,
+        train_idx,
+        valid_idx,
+        smoke_test=smoke_test,
+    )
+    xgb_valid_pred, xgb_metrics, xgb_model = train_xgb_holdout(
+        data,
+        feature_cols,
+        train_idx,
+        valid_idx,
+        smoke_test=smoke_test,
+    )
 
     pred_map = {
         "lgbm": lgbm_valid_pred,
@@ -480,7 +382,7 @@ def run_step3_tree_blend(
     weight_frame = pd.DataFrame([weights | blend_metrics])
     weight_frame.to_csv(output_dir / "step3_blend_weight_search.csv", index=False)
 
-    test_data = load_parquet_frame(root, "test.parquet", include_label=False)
+    test_data = load_parquet_frame(root, "test.parquet", sample_rows=sample_rows if smoke_test else None, include_label=False)
     test_data = add_basic_market_features(test_data)
     test_lgbm = lgbm_model.predict(test_data[feature_cols], num_iteration=lgbm_model.best_iteration)
     test_cat = cat_model.predict(test_data[feature_cols]).astype(np.float64)
@@ -488,7 +390,7 @@ def run_step3_tree_blend(
     test_blend = (
         weights["lgbm"] * test_lgbm + weights["catboost"] * test_cat + weights["xgboost"] * test_xgb
     )
-    submission_path = save_submission(root, test_blend, "submission_overnight_step3_tree_blend.csv")
+    submission_path = save_submission(root, test_blend, "submission_overnight_step3_tree_blend.csv", submission_dir)
     np.save(output_dir / "step3_valid_pred.npy", blend_valid)
 
     record = ExperimentRecord(
@@ -499,7 +401,7 @@ def run_step3_tree_blend(
         holdout_mae=blend_metrics["mae"],
         vs_baseline=blend_metrics["pearson"] - BASELINE_PEARSON,
         beats_baseline=blend_metrics["pearson"] > BASELINE_PEARSON,
-        submission_file=str(submission_path.relative_to(root)),
+        submission_file=display_path(root, submission_path),
         notes=f"weights={weights}; single lgbm={lgbm_metrics['pearson']:.4f}, cat={cat_metrics['pearson']:.4f}, xgb={xgb_metrics['pearson']:.4f}",
         extra={"weights": weights},
     )
@@ -510,22 +412,26 @@ def run_step3_tree_blend(
 def run_step4_temporal_features(
     root: Path,
     output_dir: Path,
+    submission_dir: Path,
     params: dict[str, float | int],
     log_path: Path,
+    *,
+    sample_rows: int | None = None,
+    smoke_test: bool = False,
 ) -> ExperimentRecord:
     log_message(log_path, "Step4: 时序扩展特征 LGBM 开始")
-    data, feature_cols = prepare_dataset(root, temporal=True)
+    data, feature_cols = prepare_dataset(root, temporal=True, sample_rows=sample_rows)
     save_json({"feature_columns": feature_cols}, output_dir / "step4_temporal_features.json")
     train_idx, valid_idx = time_order_split(len(data), valid_fraction=0.2, gap_rows=0)
-    args = make_lgbm_args(root, params)
+    args = make_lgbm_args(root, params, smoke_test=smoke_test)
     model, valid_pred, metrics = train_lgbm_model(data, feature_cols, train_idx, valid_idx, args)
     assert valid_pred is not None
     save_lgbm_model(model, output_dir / "step4_temporal_lgbm.txt")
 
-    test_data = load_parquet_frame(root, "test.parquet", include_label=False)
+    test_data = load_parquet_frame(root, "test.parquet", sample_rows=sample_rows if smoke_test else None, include_label=False)
     test_data = add_temporal_features(test_data)
     test_pred = model.predict(test_data[feature_cols], num_iteration=model.best_iteration)
-    submission_path = save_submission(root, test_pred, "submission_overnight_step4_temporal.csv")
+    submission_path = save_submission(root, test_pred, "submission_overnight_step4_temporal.csv", submission_dir)
 
     record = ExperimentRecord(
         step="step4",
@@ -535,7 +441,7 @@ def run_step4_temporal_features(
         holdout_mae=metrics["mae"],
         vs_baseline=metrics["pearson"] - BASELINE_PEARSON,
         beats_baseline=metrics["pearson"] > BASELINE_PEARSON,
-        submission_file=str(submission_path.relative_to(root)),
+        submission_file=display_path(root, submission_path),
         notes=f"新增特征数={len(feature_cols) - 792}",
         extra={"feature_count": len(feature_cols)},
     )
@@ -544,32 +450,62 @@ def run_step4_temporal_features(
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="夜间优化流水线（不覆盖 baseline 主结果）")
+    parser = argparse.ArgumentParser(description="树模型集成与时序扩展 LightGBM 流水线")
     parser.add_argument("--root", default=str(DEFAULT_ROOT))
-    parser.add_argument("--steps", default="1,2,3,4", help="逗号分隔步骤编号")
+    parser.add_argument("--steps", default="3,4", help="逗号分隔步骤编号；仅支持 3,4")
+    parser.add_argument("--sample-rows", type=int, default=None, help="只读取前 N 行做烟测")
+    parser.add_argument("--smoke-test", action="store_true", help="缩短树模型迭代并将提交写入 output-dir")
+    parser.add_argument("--output-dir", default=None, help="实验输出目录；默认 outputs/experiments/overnight")
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
     root = Path(args.root).expanduser().resolve()
-    output_dir = ensure_dir(root / "outputs" / "experiments" / "overnight")
+    output_dir = Path(args.output_dir) if args.output_dir else root / "outputs" / "experiments" / "overnight"
+    if not output_dir.is_absolute():
+        output_dir = root / output_dir
+    output_dir = ensure_dir(output_dir)
+    submission_dir = ensure_dir(output_dir / "submissions") if args.output_dir else ensure_dir(root / "outputs" / "submissions")
     log_path = output_dir / "overnight_progress.log"
     steps = {int(item.strip()) for item in args.steps.split(",") if item.strip()}
+    unsupported_steps = steps - {3, 4}
+    if unsupported_steps:
+        raise ValueError(f"仅支持保留方法 steps=3,4，不再支持: {sorted(unsupported_steps)}")
+    if not steps:
+        raise ValueError("至少需要指定一个步骤: 3 或 4")
 
     log_message(log_path, f"夜间优化开始 steps={sorted(steps)} baseline={BASELINE_PEARSON:.6f}")
     params = load_best_lgbm_params(root)
-    data, feature_cols = prepare_dataset(root, temporal=False)
     records: list[ExperimentRecord] = []
 
-    if 1 in steps:
-        records.append(run_step1_multiseed(root, output_dir, data, feature_cols, params, log_path)[0])
-    if 2 in steps:
-        records.append(run_step2_purged_local_tune(root, output_dir, data, feature_cols, log_path))
     if 3 in steps:
-        records.append(run_step3_tree_blend(root, output_dir, data, feature_cols, params, log_path))
+        data, feature_cols = prepare_dataset(root, temporal=False, sample_rows=args.sample_rows)
+        records.append(
+            run_step3_tree_blend(
+                root,
+                output_dir,
+                submission_dir,
+                data,
+                feature_cols,
+                params,
+                log_path,
+                sample_rows=args.sample_rows,
+                smoke_test=args.smoke_test,
+            )
+        )
     if 4 in steps:
-        records.append(run_step4_temporal_features(root, output_dir, params, log_path))
+        records.append(
+            run_step4_temporal_features(
+                root,
+                output_dir,
+                submission_dir,
+                params,
+                log_path,
+                sample_rows=args.sample_rows,
+                smoke_test=args.smoke_test,
+            )
+        )
 
     summary = finalize_records(records)
     summary_path = output_dir / "optimization_summary.csv"
@@ -584,11 +520,13 @@ def main() -> int:
         "best_new_experiment": None,
     }
     if best_candidate is not None and bool(best_candidate["beats_baseline"]):
-        src = root / str(best_candidate["submission_file"])
-        dst = root / "outputs" / "submissions" / "submission_overnight_best.csv"
+        src = Path(str(best_candidate["submission_file"]))
+        if not src.is_absolute():
+            src = root / src
+        dst = submission_dir / "submission_overnight_best.csv"
         dst.write_bytes(src.read_bytes())
         payload["best_new_experiment"] = best_candidate.to_dict()
-        payload["best_new_submission"] = str(dst.relative_to(root))
+        payload["best_new_submission"] = display_path(root, dst)
         log_message(log_path, f"新的最优候选已复制到 {dst} (pearson={best_candidate['holdout_pearson']:.6f})")
     else:
         log_message(log_path, "暂无超过 baseline 的新结果；主提交 submission.csv 保持不变")
@@ -597,7 +535,7 @@ def main() -> int:
     log_message(log_path, f"汇总已保存: {summary_path}")
 
     plot_script = root / "src" / "visualization" / "plot_optimization_summary.py"
-    if plot_script.is_file():
+    if plot_script.is_file() and args.output_dir is None:
         import subprocess
 
         subprocess.run(

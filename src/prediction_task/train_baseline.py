@@ -49,7 +49,6 @@ def update_model_compare(output_dir: Path) -> None:
     for path in [
         output_dir / "official_baseline_results.csv",
         output_dir / "official_lgbm_results.csv",
-        output_dir / "official_lasso_results.csv",
     ]:
         if path.is_file():
             result = pd.read_csv(path)
@@ -70,14 +69,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--feature-file", default=None, help="特征列 JSON，默认使用全部特征")
     parser.add_argument("--alpha", type=float, default=1.0, help="Ridge 正则强度")
     parser.add_argument("--solver", default="lsqr", help="Ridge 求解器，全量数据默认使用 lsqr 避免 SVD 内存压力")
+    parser.add_argument("--output-dir", default=None, help="实验输出目录，默认 outputs/experiments")
+    parser.add_argument("--model-dir", default=None, help="模型输出目录，默认 models")
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
     root = Path(args.root).expanduser().resolve()
-    output_dir = ensure_dir(root / "outputs" / "experiments")
-    model_dir = ensure_dir(root / "models")
+    output_dir = Path(args.output_dir) if args.output_dir else root / "outputs" / "experiments"
+    model_dir = Path(args.model_dir) if args.model_dir else root / "models"
+    if not output_dir.is_absolute():
+        output_dir = root / output_dir
+    if not model_dir.is_absolute():
+        model_dir = root / model_dir
+    output_dir = ensure_dir(output_dir)
+    model_dir = ensure_dir(model_dir)
 
     data = load_parquet_frame(root, "train.parquet", sample_rows=args.sample_rows, include_label=True)
     data = add_basic_market_features(data)

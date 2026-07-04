@@ -44,32 +44,3 @@ def add_basic_market_features(data: pd.DataFrame, eps: float = 1e-6) -> pd.DataF
         result[column] = result[column].astype("float32")
 
     return result
-
-
-def add_synthesized_features(
-    data: pd.DataFrame,
-    combo_defs: list[dict[str, str]],
-    *,
-    eps: float = 1e-6,
-) -> pd.DataFrame:
-    result = data.copy()
-    for combo in combo_defs:
-        name = combo["name"]
-        left = combo["left"]
-        right = combo["right"]
-        op = combo["op"]
-        a = result[left].astype("float32")
-        b = result[right].astype("float32")
-        if op == "add":
-            result[name] = a + b
-        elif op == "sub":
-            result[name] = a - b
-        elif op == "div":
-            result[name] = a / (np.abs(b) + eps)
-        elif op == "mul":
-            result[name] = a * b
-        else:
-            raise ValueError(f"未知组合操作: {op}")
-        result[name] = result[name].astype("float32")
-    return result
-

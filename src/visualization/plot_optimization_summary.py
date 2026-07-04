@@ -16,8 +16,6 @@ BASELINE_PEARSON = 0.10235862829968674
 
 STEP_LABELS = {
     "baseline": "基线 phase1b",
-    "step1": "Step1 多seed",
-    "step2": "Step2 Purged调参",
     "step3": "Step3 树模型集成",
     "step4": "Step4 时序特征",
 }

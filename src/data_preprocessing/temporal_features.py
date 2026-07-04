@@ -7,7 +7,7 @@ from data_preprocessing.build_features import add_basic_market_features
 
 # Step4 原版 Top-5
 TOP_X_LAG_BASIC = ["X466", "X33", "X752", "X272", "X758"]
-# Kaggle 对齐版：importance Top-10
+# 扩展版：importance Top-10
 TOP_X_LAG_EXTENDED = [
     "X466",
     "X33",
@@ -61,7 +61,7 @@ def _add_x_lags(frame: pd.DataFrame, features: list[str], lags: tuple[int, ...])
 
 
 def add_step4_temporal_features(data: pd.DataFrame, *, extended: bool = False) -> pd.DataFrame:
-    """Step4 时序特征；extended=True 为 Kaggle 对齐增强版。"""
+    """Step4 时序特征；extended=True 为增强版。"""
     result = add_basic_market_features(data)
     if extended:
         result = _add_market_temporal(

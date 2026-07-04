@@ -1,9 +1,0 @@
-comparison,metric,full_features,selected_features_31,notes
-purged_cv_6groups_gap1,lightgbm_pearson_mean,0.065412,0.022684,792 vs 31 features; 4 folds
-purged_cv_6groups_gap1,lightgbm_pearson_std,0.019757,0.042240,
-purged_cv_6groups_gap1,ridge_pearson_mean,0.013901,0.035324,
-purged_cv_6groups_gap1,ridge_pearson_std,0.030669,0.055922,
-holdout_20pct,lightgbm_pearson,0.076856,0.052167,single time holdout gap=0
-holdout_20pct,ridge_pearson,0.091906,0.057084,full ridge from earlier run 2026-07-02
-feature_count,,792,31,
-kaggle_submission,output_file,outputs/submissions/submission.csv,outputs/submissions/submission_selected.csv,recommend full LGBM for primary submit

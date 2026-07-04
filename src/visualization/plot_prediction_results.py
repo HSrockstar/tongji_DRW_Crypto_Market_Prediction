@@ -52,7 +52,6 @@ def load_valid_predictions(root: Path) -> pd.DataFrame:
     files = [
         root / "outputs" / "experiments" / "official_baseline_valid_predictions.csv",
         root / "outputs" / "experiments" / "official_lgbm_valid_predictions.csv",
-        root / "outputs" / "experiments" / "official_lasso_valid_predictions.csv",
     ]
     frames = [pd.read_csv(path) for path in files if path.is_file()]
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
@@ -68,12 +67,10 @@ def plot_valid_prediction_distribution(root: Path, output_dir: Path) -> None:
     model_colors = {
         "ridge": "#4C72B0",
         "lightgbm": "#DD8452",
-        "lasso": "#55A868",
     }
     model_labels = {
         "ridge": "Ridge 预测",
         "lightgbm": "LightGBM 预测",
-        "lasso": "Lasso 预测",
     }
 
     fig, ax = plt.subplots(figsize=(10, 5))

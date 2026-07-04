@@ -3,41 +3,20 @@
 ## 项目信息
 
 - 项目名称：DRW Crypto Market Prediction
-- 项目路径：以仓库根目录为准（本地示例：`D:\数学建模期末大作业\tongji_DRW_Crypto_Market_Prediction`）
-- 当前阶段：官方预测 baseline 已完成；5 折时间 CV 与特征组消融已有初版结果；报告/PPT/视频待撰写
-- 最近同步：`origin/main` @ `b96cbb1`（7.3 增加交叉验证）
+- 当前阶段：主线方法已精简为 Ridge baseline、调参 LightGBM、CatBoost + XGBoost 树模型集成、时序扩展 LightGBM；另保留第 2 名方案迁移版作为独立可复现实验。
+- 验证口径：本地时间 Holdout / 时间 CV / Kaggle LB 均保留，但报告中需明确它们不完全一致。
+- 推荐解释器：`E:\miniconda\envs\drw\python.exe`。当前默认 `python` 环境依赖不完整。
 
 ## 目录结构
 
-- `data/raw`：Kaggle 原始数据文件
-- `data/processed`：后续处理后的数据文件
-- `notebooks`：探索性分析 Notebook
-- `src`：项目脚本
-- `outputs`：校验报告、分析输出等
-- `models`：后续模型文件
-- `logs`：运行日志
+- `data/raw`：Kaggle 原始数据文件。
+- `data/processed`：后续处理后的数据文件。
+- `src`：项目脚本。
+- `models`：保留主线模型文件。
+- `outputs`：校验报告、实验结果、图表和提交文件。
+- `data/external`：第 2 名方案迁移版所需的时间过滤与特征规格资产。
 
-## 数据文件说明
-
-- `train.parquet` 是训练集，包含特征和目标列。
-- `test.parquet` 是测试集，用来生成预测结果。
-- `sample_submission.csv` 是 Kaggle 提交格式模板。
-
-`train.parquet` 和 `test.parquet` 文件都超过 3GB，不适合直接提交到 GitHub，已通过 `.gitignore` 排除。当前仓库只计划提交代码、文档、依赖文件、校验脚本、校验报告和较小的 `sample_submission.csv`。
-
-## 数据获取
-
-在已经配置好 Kaggle API 的环境中执行：
-
-```powershell
-kaggle competitions download -c drw-crypto-market-prediction -p E:\DRW\data\raw
-```
-
-下载完成后，将压缩包解压到：
-
-```text
-E:\DRW\data\raw
-```
+## 数据文件
 
 解压后应包含：
 
@@ -47,101 +26,92 @@ data/raw/test.parquet
 data/raw/sample_submission.csv
 ```
 
-不要把 `kaggle.json` 或任何账号 token 放进项目目录或提交到 GitHub。
+已确认数据概况：
 
-## 环境依赖
+- `train.parquet`：525886 行，787 列，含 `label`。
+- `test.parquet`：538150 行，786 列。
+- `sample_submission.csv`：列名为 `ID`、`prediction`。
+- 公开市场字段：`bid_qty`、`ask_qty`、`buy_qty`、`sell_qty`、`volume`。
 
-推荐在本机使用虚拟环境（Windows 示例）：
+`train.parquet` 和 `test.parquet` 均超过 3GB，已通过 `.gitignore` 排除。
+
+## 当前保留方法
+
+| 方法 | 使用特征 | 脚本 | 当前表现 |
+|------|----------|------|----------|
+| Ridge baseline | 792 维完整特征 | `src/prediction_task/train_baseline.py` | Holdout Pearson 0.0914 |
+| 调参 LightGBM 主 baseline | 792 维完整特征 | `src/prediction_task/tune_lgbm.py`、`train_lgbm.py` | Holdout Pearson 0.1024 |
+| CatBoost + XGBoost 树模型集成 | 792 维完整特征 | `src/prediction_task/run_overnight_optimization.py --steps 3` | Holdout Pearson 0.1134，Kaggle 泛化差 |
+| 时序扩展 LightGBM | 约 809 维时序扩展特征 | `src/prediction_task/run_overnight_optimization.py --steps 4` | Holdout Pearson 0.0963，Private LB 较稳 |
+
+特征组消融、medoid 与稳定特征筛选保留为特征贡献分析，不再作为最终建模方法。
+
+## 第 2 名方案迁移版
+
+第 2 名方案已经迁移到主项目，包含三条独立方法：原始 `LinearRegression()`、`Ridge(alpha=100.0)`、`LightGBM`。迁移实现不保留 Kaggle notebook、metadata、下载脚本或复制来的原始代码，只保留必要的数据资产和重写后的工程化实现。
+
+| 方法 | 数据/特征 | 脚本 | 验收结果 |
+|------|----------|------|----------|
+| 原始线性模型 | 时间过滤后 71,282 行训练样本，450 维特征 | `src/prediction_task/train_second_place.py --models linear` | 提交 SHA 与迁移前参考完全一致 |
+| Ridge 迁移版 | 同上 | `src/prediction_task/train_second_place.py --models ridge` | 提交 SHA 与迁移前参考完全一致 |
+| LightGBM 迁移版 | 同上，最终 `n_estimators=1627` | `src/prediction_task/train_second_place.py --models lightgbm` | 提交 SHA 与迁移前参考完全一致 |
+
+## 运行命令
 
 ```powershell
-.\scripts\setup_env.ps1
-.\.venv\Scripts\Activate.ps1
+cd E:\DRW
+
+# Ridge baseline
+& E:\miniconda\envs\drw\python.exe src\prediction_task\train_baseline.py --root .
+
+# 调参 LightGBM
+& E:\miniconda\envs\drw\python.exe src\prediction_task\tune_lgbm.py --root .
+
+# 树模型集成 + 时序扩展 LightGBM
+& E:\miniconda\envs\drw\python.exe src\prediction_task\run_overnight_optimization.py --root . --steps 3,4
+
+# 生成 LightGBM 提交
+& E:\miniconda\envs\drw\python.exe src\prediction_task\make_submission.py --root . --model models\official_lgbm.txt
+
+# 第 2 名方案迁移版：构建缓存、训练三条方法并验收
+& E:\miniconda\envs\drw\python.exe src\data_preprocessing\build_second_place_dataset.py --raw-data-dir data\raw --asset-dir data\external --cache-dir data\processed\second_place
+& E:\miniconda\envs\drw\python.exe src\prediction_task\train_second_place.py --models linear,ridge,lightgbm --cache-dir data\processed\second_place --output-dir outputs\experiments\second_place --model-dir models\second_place --submission-dir outputs\submissions --make-submissions
+& E:\miniconda\envs\drw\python.exe src\prediction_task\verify_second_place_migration.py --reference-manifest data\external\second_place_reference_manifest.json --cache-dir data\processed\second_place --output-dir outputs\experiments\second_place --submission-dir outputs\submissions
 ```
 
-也可手动安装：
+轻量烟测：
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe src\check_env.py
+$tmp = Join-Path $env:TEMP "drw_smoke"
+& E:\miniconda\envs\drw\python.exe src\prediction_task\train_baseline.py --root . --sample-rows 5000 --output-dir $tmp --model-dir $tmp
+& E:\miniconda\envs\drw\python.exe src\prediction_task\train_lgbm.py --root . --sample-rows 5000 --num-boost-round 20 --early-stopping-rounds 5 --output-dir $tmp --model-dir $tmp
+& E:\miniconda\envs\drw\python.exe src\prediction_task\run_overnight_optimization.py --root . --steps 3,4 --sample-rows 5000 --smoke-test --output-dir (Join-Path $tmp "overnight")
+& E:\miniconda\envs\drw\python.exe src\data_preprocessing\build_second_place_dataset.py --sample-train-rows 20000 --sample-test-rows 1000 --cache-dir (Join-Path $tmp "second_place_cache") --force
+& E:\miniconda\envs\drw\python.exe src\prediction_task\train_second_place.py --models linear,ridge,lightgbm --smoke-test --make-submissions --cache-dir (Join-Path $tmp "second_place_cache") --output-dir (Join-Path $tmp "second_place_out") --model-dir (Join-Path $tmp "second_place_models") --submission-dir (Join-Path $tmp "second_place_subs")
 ```
-
-## 当前已完成事项
-
-### 环境与数据
-
-- 目录结构与依赖：`requirements.txt`、`.gitignore`
-- 本地虚拟环境：`.venv`（本机）
-- Kaggle 竞赛已加入，原始数据已下载并校验：`data/raw/train.parquet`、`test.parquet`
-- 环境/数据脚本：`src/check_env.py`、`src/verify_data.py`
-- 本机辅助脚本（未提交）：`scripts/setup_env.ps1`、`scripts/download_data.ps1`
-- 校验报告：`outputs/data_check_report.json`
-
-### 任务一：官方预测
-
-- 数据预处理与基础特征：`src/data_preprocessing/`
-- 单次 holdout 验证：Ridge / LightGBM / Lasso（`outputs/experiments/official_*`）
-- 提交文件：`outputs/submissions/submission.csv`
-- 已保存模型：`models/official_ridge.pkl`、`official_lgbm.txt`、`official_lasso.pkl`
-
-### 任务二：特征有效性（初版）
-
-- 5 折 walk-forward 特征组消融（Ridge）：`outputs/experiments/feature_group_cv_*.csv`
-- 对比图：`outputs/figures/feature_effectiveness/feature_group_compare.png`
-- 待补充：LightGBM importance / SHAP、更完整的 G1~G6 实验说明
-
-### 任务三：时间稳定性（初版）
-
-- 5 折 expanding window CV：`src/prediction_task/run_time_cv_experiments.py`
-- 结果：`outputs/experiments/cv_results.csv`、`cv_summary.csv`
-- 趋势图：`outputs/figures/prediction_task/cv_pearson_by_fold.png`
-
-### 待完成
-
-- Kaggle 正式提交与成绩截图
-- 报告 PDF、PPT、约 8 分钟汇报视频
-- 特征解释与时间稳定性章节的文字分析
 
 ## 校验方法
 
 ```powershell
-.\.venv\Scripts\Activate.ps1
-python src\check_env.py
-python src\verify_data.py --root .
-python src\verify_data.py --root . --hash
+& E:\miniconda\envs\drw\python.exe src\check_env.py
+& E:\miniconda\envs\drw\python.exe src\verify_data.py --root .
+& E:\miniconda\envs\drw\python.exe -m compileall src
 ```
 
-## 已确认的数据概况
+## 关键产物
 
-- `train.parquet`：525886 行，787 列
-- `test.parquet`：538150 行，786 列
-- `sample_submission.csv`：列名为 `ID`、`prediction`
-- 常见市场字段：`bid_qty`、`ask_qty`、`buy_qty`、`sell_qty`、`volume`
+- `models/official_ridge.pkl`
+- `models/official_lgbm.txt`
+- `outputs/submissions/submission.csv`
+- `outputs/experiments/official_model_compare.csv`
+- `outputs/experiments/overnight/optimization_summary.csv`
+- `outputs/experiments/feature_group_cv_summary.csv`
+- `outputs/experiments/feature_pipeline_cv_summary.csv`
+- `data/external/second_place_feature_spec.json`
+- `data/external/second_place_reference_manifest.json`
 
-## GitHub 提交范围
+## 注意事项
 
-计划提交：
-
-- `README.md`
-- `requirements.txt`
-- `.gitignore`
-- `src/check_env.py`
-- `src/verify_data.py`
-- `outputs/data_check_report.json`
-- `data/raw/sample_submission.csv`
-
-不提交：
-
-- `data/raw/train.parquet`
-- `data/raw/test.parquet`
-- `data/raw/drw-crypto-market-prediction.zip`
-- `kaggle.json`
-- 模型文件和本地日志
-
-## 下一步建议
-
-1. 用最新全量数据重跑 CV / 特征消融，确认结果可复现
-2. 补充 LightGBM 特征重要性与 SHAP 分析（任务二）
-3. 整理时间 CV 图表与文字结论（任务三）
-4. 提交 Kaggle 并保存成绩截图
-5. 撰写 PDF 报告、PPT 与汇报视频
+- 本地 Holdout 与 Kaggle LB 存在明显偏差，不能只根据 Holdout 选最终方案。
+- 第 2 名方案迁移版不保留 Kaggle 原始代码；验收以主项目生成产物与迁移前参考 SHA/指标完全一致为准。
+- 不要把 `kaggle.json` 或任何账号 token 放进项目目录或提交到 GitHub。
